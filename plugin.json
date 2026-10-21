@@ -1,0 +1,8 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ci-voodoo",
+  "version": "0.1.0",
+  "description": "Satirical CI rituals and reproducible engineering artifacts for software reliability frustration.",
+  "repository": "https://github.com/TeaShaman-cyber/ci-voodoo-research",
+  "keywords": ["ci", "reliability", "satire", "devops", "ritual"]
+}
