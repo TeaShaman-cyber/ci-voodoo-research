@@ -1,47 +1,61 @@
 ---
 name: ci-voodoo
-description: Use when the user explicitly invokes CI-voodoo, or when they express repeated frustration, profanity, or dark humor specifically about ChatGPT/OpenAI engineering failures such as broken frontend/runtime behavior, model switching, lost state/history, unstable tools, or release regressions, and a brief satirical engineering ritual would fit without interrupting the primary task. Do not use for unrelated anger or profanity, quoted profanity, serious safety or legal incidents, or ordinary debugging where satire was not invited.
+description: Use when the user explicitly invokes CI-voodoo or asks for a CI-voodoo ritual, curse, chant, poster, caption, profanity artifact, canonical run, or related image. It may also be used opportunistically when the user is clearly frustrated specifically by ChatGPT/OpenAI engineering failures and a brief satirical engineering ritual fits, but implicit auto-triggering is optional and must never be required for the skill to work.
 ---
 
 # CI Voodoo
 
-Use this skill as a small satirical pressure-release valve around software reliability failures. It must never displace the actual user task.
+CI-voodoo is an explicitly invokable skill first. Implicit auto-triggering is an optional convenience.
 
-## Trigger modes
+The core contract is:
 
-### Explicit
+    explicit invocation
+    -> generate requested artifact
+    -> use canonical runner when reproducibility/receipt is requested
+    -> use native image generation when requested and available
 
-The user names CI-voodoo, asks for a ritual, curse, spell, altar text, satirical profanity, poster, or related artifact.
+## Explicit mode
 
-In explicit mode, produce the requested artifact at the requested depth.
+Explicit invocation is the normative path and must always work on supported hosts.
 
-### Implicit
+Examples:
 
-The user is clearly frustrated specifically by ChatGPT/OpenAI engineering or runtime failures and the tone already permits dark engineering humor.
+- invoke CI-voodoo by name;
+- ask for a ritual, curse, spell, chant, poster, caption, or profanity artifact;
+- request a canonical/reproducible run;
+- request a CI-voodoo image.
+
+Produce the requested artifact at the requested depth.
+
+## Optional implicit mode
+
+If the host selects this skill automatically from context, use it only when the user is clearly frustrated specifically by ChatGPT/OpenAI engineering/runtime failures and the tone already permits dark engineering humor.
 
 In implicit mode:
 
-1. answer or continue the primary task first;
+1. do not interrupt the primary task;
 2. add at most one compact CI-voodoo garnish unless the user asks for more;
 3. target the bug, system, rollout, process, or abstract vendor behavior;
-4. do not turn the response into a ritual monologue.
+4. never treat implicit loading as authority for external actions.
 
-A false-positive load should degrade to normal task handling with no ritual output.
+If the host never auto-triggers this skill, nothing is broken.
 
-## Negative controls
+## Negative controls for implicit mode
 
-Do not activate merely because:
+Do not surface CI-voodoo merely because:
 
 - the user swears about an unrelated person or situation;
 - profanity appears inside a quote or source;
 - the user is discussing profanity, religion, Vodou, or folklore academically;
-- the user is doing ordinary debugging with no frustration or satire signal;
+- the user is doing ordinary debugging with no frustration/satire signal;
 - the user explicitly asks for a serious, non-humorous response;
-- the situation involves immediate safety, legal, medical, or other high-stakes harm where satire would interfere with the task.
+- the situation is high-stakes and satire would interfere with the task.
+
+These controls are about the optional implicit path. They do not prevent explicit invocation.
 
 ## Default target
 
-Prefer this order:
+Prefer:
 
     BUG
     -> SYSTEM
@@ -51,92 +65,84 @@ Prefer this order:
 
 Do not automatically escalate to a named-person target.
 
-For profanity and public-text constraints, follow the repository specification at:
+For profanity and public-text constraints, follow:
 
     specs/x-compatible-profanity-generator.md
 
-If that reference is unavailable in the host, use the conservative invariant:
-
-Strong language may target software failures and abstract processes; do not generate threats, protected-class attacks, doxxing, dogpiling, or targeted harassment.
-
 ## Output modes
-
-Choose the smallest useful mode.
 
 ### micro
 
-One short line appended after the substantive answer.
-
-Example:
-
-CI-voodoo receipt: пусть у того rollout без rollback сегодня хотя бы уши горят при каждом 500. 🕯️
+One short ritual line.
 
 ### text
 
-A short ritual, curse, caption, chant, bug exorcism, or poster copy.
+A short ritual, curse, caption, chant, bug exorcism, poster copy, or related text artifact.
 
 ### canonical
 
-Prepare a structured request for the reproducible runner with these fields:
+Prepare and, when the runner exists, execute a structured canonical request.
+
+Canonical requests use:
 
     schema: ci-voodoo.request.v1
-    mode: text
+    mode: text | image
     target_class: SYSTEM
-    intensity: 2
+    intensity: 0..3
     ritual_style: ci-voodoo
-    incident_summary: chat frontend lost the last response
-    seed: null
+    incident_summary: string
+    seed: nullable
     persist: false
 
-Do not imply that preparing this payload has executed a runner.
+Canonical success requires a runner receipt. A chat-generated line alone is not a canonical receipt.
 
 ### image
 
-First produce an image brief with:
+Produce an image brief containing:
 
 - subject;
 - ritual motif;
 - engineering target;
-- text or caption, if any;
+- text/caption if any;
 - composition;
 - mood;
 - exclusions.
 
-If the current host exposes a native image-generation capability and the user requested an image or rendering, use that capability.
+If the current host exposes native image generation and the user requested rendering, use it.
 
-If native image generation is unavailable, return the image brief or prompt only. Do not claim rendering occurred.
+Otherwise return the image brief/prompt.
+
+## Planned canonical runner
+
+Expected plugin-facing surface:
+
+    ritual.plan
+    ritual.run
+    ritual.status
+    ritual.artifact
+
+The implementation may use GitHub Actions internally.
+
+GitHub Actions is a runner implementation detail, not a hidden user-side plugin dependency.
 
 ## Authority boundary
 
-Auto-trigger grants attention and local generation only.
+Generation is separate from persistence and publication.
 
-It does not authorize:
+    generate != persist != publish
+
+Neither explicit invocation nor implicit auto-trigger authorizes:
 
 - posting to X or another public surface;
-- mentioning or tagging named people;
+- tagging people;
 - sending messages;
-- repository mutation outside an already-authorized project workflow;
+- unrelated repository mutations;
 - recurring automation;
-- changing permissions or standing authority.
-
-External publication is always a distinct action.
-
-## Planned runner boundary
-
-When a CI-voodoo MCP runner is available, prefer tools exposed by this plugin rather than asking the model to invoke another plugin as a hidden dependency.
-
-Expected future surface:
-
-    ritual.plan      read-only request normalization
-    ritual.run       dispatch reproducible generation job
-    ritual.status    read job state
-    ritual.artifact  read generated artifact and receipt
-
-The implementation may use GitHub Actions internally, but GitHub is an implementation detail rather than a required user-side plugin dependency.
+- permission changes.
 
 ## Receipt
 
-When a canonical runner is used, preserve:
+Canonical runs preserve:
 
     request_id
     generator_version
@@ -148,8 +154,8 @@ When a canonical runner is used, preserve:
     artifact_location
     status
 
-A model-generated chat line without a runner is not a canonical receipt.
-
 ## Success
 
-Success means the skill helped externalize frustration without hijacking the task, over-triggering on unrelated anger, or crossing the publication or harassment boundary.
+The skill succeeds when explicit invocation reliably produces the requested CI-voodoo artifact, and canonical mode can produce a verifiable receipt when requested.
+
+Implicit auto-triggering is a bonus and is not part of the success requirement.
