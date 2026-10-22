@@ -42,6 +42,8 @@ export async function runCanonical({ request: input, outDir, runnerRevision = 'L
     schema: 'ci-voodoo.receipt.v1',
     request_id: `ci-${requestHash.slice(0, 16)}`,
     generator_version: result.generator_version,
+    engine: result.engine,
+    engine_version: result.engine_version,
     policy_snapshot: result.policy_snapshot,
     request_hash: requestHash,
     seed: result.seed,

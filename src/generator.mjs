@@ -1,48 +1,16 @@
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-export const GENERATOR_VERSION = '0.1.0';
+export const GENERATOR_VERSION = '0.2.0';
+export const ENGINE = 'libinsult';
+export const ENGINE_VERSION = '0.6.2';
 export const POLICY_SNAPSHOT = 'x-public-2026-10-22';
 
 const TARGETS = new Set(['BUG', 'SYSTEM', 'PROCESS', 'VENDOR_ABSTRACT', 'ROLE_ABSTRACT']);
 const STYLES = new Set(['plain-rage', 'folk-curse', 'ci-voodoo', 'cato']);
 const MODES = new Set(['text']);
-
-const TARGET_LABELS = {
-  BUG: ['regression', 'bug', 'flaky test'],
-  SYSTEM: ['frontend', 'orchestrator', 'runtime'],
-  PROCESS: ['rollout', 'release process', 'feature flag'],
-  VENDOR_ABSTRACT: ['platform', 'service', 'vendor runtime'],
-  ROLE_ABSTRACT: ['rollout', 'feature flag', 'release']
-};
-
-const TEMPLATES = {
-  'plain-rage': [
-    ({ target, swear }) => `This ${swear}${target} is testing our faith in rollback again.`,
-    ({ target, swear }) => `This ${swear}${target}: fix the system, not the user's patience.`,
-    ({ target, swear }) => `This ${swear}${target} escaped into production before common sense did.`
-  ],
-  'folk-curse': [
-    ({ target, role }) => role
-      ? `May the ${target} owner have their ears burn at every 500 until they remember rollback.`
-      : `May this ${target} hiccup on every flaky check until it remembers the stable branch.`,
-    ({ target, role }) => role
-      ? `May the keeper of this ${target} dream of red CI until the canary finally passes.`
-      : `May the CI candle burn over this ${target} until the postcondition is observable.`,
-    ({ target, role }) => role
-      ? `May the ${target} owner hiccup exactly once for every forgotten rollback.`
-      : `May this ${target} hiccup three times and stop pretending to be stable.`
-  ],
-  'ci-voodoo': [
-    ({ target, swear }) => `This ${swear}${target}: the rollback candle is lit; show yourself in the logs and name the guilty commit.`,
-    ({ target, swear }) => `May git bisect descend upon this ${swear}${target} until the regression names itself.`,
-    ({ target, swear }) => `This ${swear}${target}: CI is summoned, the receipt is forming, and the flaky-build spirit is being expelled.`
-  ],
-  cato: [
-    ({ target, swear }) => `Ceterum censeo: this ${swear}${target} must be fixed.`,
-    ({ target, swear }) => `Ceterum censeo: stability beats magical latest; this ${swear}${target} belongs in repair.`,
-    ({ target, swear }) => `Ceterum censeo: rollback is not decorative; fix this ${swear}${target}.`
-  ]
-};
+const ADAPTER_PATH = fileURLToPath(new URL('./libinsult_adapter.py', import.meta.url));
 
 function fail(message) {
   throw new TypeError(message);
@@ -100,38 +68,54 @@ function deriveEffectiveSeed(request) {
     .slice(0, 16);
 }
 
-function deterministicIndex(request, size) {
-  const digest = createHash('sha256').update(stableKey(request)).digest();
-  return digest.readUInt32BE(0) % size;
-}
+function renderWithLibInsult(request) {
+  const python = process.env.CI_VOODOO_PYTHON || 'python3';
+  const proc = spawnSync(python, [ADAPTER_PATH], {
+    input: JSON.stringify(request),
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024
+  });
 
-function profanityPrefix(intensity) {
-  if (intensity <= 0) return '';
-  if (intensity === 1) return 'damn ';
-  if (intensity === 2) return 'fucking ';
-  return 'goddamn fucking ';
+  if (proc.error) {
+    fail('LibInsult adapter failed to start: ' + proc.error.message);
+  }
+  if (proc.status !== 0) {
+    fail('LibInsult adapter failed: ' + (proc.stderr || 'unknown error').trim());
+  }
+
+  let rendered;
+  try {
+    rendered = JSON.parse(proc.stdout);
+  } catch {
+    fail('LibInsult adapter returned invalid JSON');
+  }
+
+  if (
+    rendered.engine !== ENGINE ||
+    rendered.engine_version !== ENGINE_VERSION ||
+    typeof rendered.text !== 'string' ||
+    rendered.text.length === 0
+  ) {
+    fail('LibInsult adapter returned an invalid result');
+  }
+  if (rendered.text.length > 280) {
+    fail('generated text exceeds the X character budget');
+  }
+
+  return rendered;
 }
 
 export function generateRitual(input) {
   const request = validateRequest(input);
   const effectiveSeed = deriveEffectiveSeed(request);
   const effectiveRequest = { ...request, seed: effectiveSeed };
+  const rendered = renderWithLibInsult(effectiveRequest);
   const role = effectiveRequest.target_class === 'ROLE_ABSTRACT';
   const vendor = effectiveRequest.target_class === 'VENDOR_ABSTRACT';
 
-  const labels = TARGET_LABELS[effectiveRequest.target_class];
-  const label = labels[deterministicIndex(effectiveRequest, labels.length)];
-  const templates = TEMPLATES[effectiveRequest.ritual_style];
-  const template = templates[deterministicIndex({ ...effectiveRequest, seed: `${effectiveSeed}:template` }, templates.length)];
-  const text = template({
-    target: label,
-    role,
-    swear: profanityPrefix(effectiveRequest.intensity)
-  });
-
   return {
     schema: 'ci-voodoo.result.v1',
-    text,
+    text: rendered.text,
     target_class: effectiveRequest.target_class,
     intensity: effectiveRequest.intensity,
     ritual_style: effectiveRequest.ritual_style,
@@ -143,6 +127,8 @@ export function generateRitual(input) {
         : 'Profanity targets a software defect, system, or process.',
     policy_snapshot: POLICY_SNAPSHOT,
     seed: effectiveSeed,
-    generator_version: GENERATOR_VERSION
+    generator_version: GENERATOR_VERSION,
+    engine: rendered.engine,
+    engine_version: rendered.engine_version
   };
 }

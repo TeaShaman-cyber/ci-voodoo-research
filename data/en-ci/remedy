@@ -1,0 +1,6 @@
+rollback ships
+the canary passes
+the postcondition is observable
+session state survives refresh
+a stable branch exists
+the incident gets a real RCA

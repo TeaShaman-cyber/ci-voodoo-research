@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/../.."
-npm run check
+PYTHON_BIN="${CI_VOODOO_PYTHON:-python3}"
+"$PYTHON_BIN" -c 'import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 11) else "CI-voodoo canonical runtime requires Python 3.11")'
+CI_VOODOO_PYTHON="$PYTHON_BIN" npm run check
+"$PYTHON_BIN" -m unittest discover -s test_py -p 'test_*.py'
 git diff --check
 printf '%s\n' DEV_CHECK_PASS
