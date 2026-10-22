@@ -35,7 +35,7 @@ assert.equal(receipt.properties.status.const, 'COMPLETED');
 assert.equal(receipt.additionalProperties, false);
 
 assert.equal(plugin.name, 'ci-voodoo');
-assert.match(plugin.version, /^0\.1\.0$/);
+assert.match(plugin.version, /^0\.1\.2$/);
 
 const workflow = await readFile('.github/workflows/canonical-ritual.yml', 'utf8');
 const architecture = await readFile('docs/plugin-architecture.md', 'utf8');
