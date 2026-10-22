@@ -109,3 +109,16 @@ test('generator output is English-first and fits an X post', () => {
     }
   }
 });
+
+test('VENDOR_ABSTRACT is medium risk', () => {
+  const result = generateRitual({ ...base, target_class: 'VENDOR_ABSTRACT' });
+  assert.equal(result.risk, 'MEDIUM');
+  assert.match(result.risk_reason, /vendor/i);
+});
+
+test('canonical v1 rejects image mode until an image artifact contract exists', () => {
+  assert.throws(
+    () => validateRequest({ ...base, mode: 'image' }),
+    /mode must be text/
+  );
+});

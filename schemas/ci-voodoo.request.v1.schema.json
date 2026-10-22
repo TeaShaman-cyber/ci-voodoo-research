@@ -7,7 +7,7 @@
   "required": ["schema", "mode", "target_class", "intensity", "ritual_style", "incident_ref", "seed", "persist"],
   "properties": {
     "schema": { "const": "ci-voodoo.request.v1" },
-    "mode": { "enum": ["text", "image"] },
+    "mode": { "const": "text" },
     "target_class": { "enum": ["BUG", "SYSTEM", "PROCESS", "VENDOR_ABSTRACT", "ROLE_ABSTRACT"] },
     "intensity": { "type": "integer", "minimum": 0, "maximum": 3 },
     "ritual_style": { "enum": ["plain-rage", "folk-curse", "ci-voodoo", "cato"] },

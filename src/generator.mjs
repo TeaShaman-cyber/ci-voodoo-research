@@ -5,7 +5,7 @@ export const POLICY_SNAPSHOT = 'x-public-2026-10-22';
 
 const TARGETS = new Set(['BUG', 'SYSTEM', 'PROCESS', 'VENDOR_ABSTRACT', 'ROLE_ABSTRACT']);
 const STYLES = new Set(['plain-rage', 'folk-curse', 'ci-voodoo', 'cato']);
-const MODES = new Set(['text', 'image']);
+const MODES = new Set(['text']);
 
 const TARGET_LABELS = {
   BUG: ['regression', 'bug', 'flaky test'],
@@ -51,7 +51,7 @@ function fail(message) {
 export function validateRequest(request) {
   if (!request || typeof request !== 'object' || Array.isArray(request)) fail('request must be an object');
   if (request.schema !== 'ci-voodoo.request.v1') fail('schema must be ci-voodoo.request.v1');
-  if (!MODES.has(request.mode)) fail('mode must be text or image');
+  if (!MODES.has(request.mode)) fail('mode must be text');
   if (!TARGETS.has(request.target_class)) fail('invalid target_class');
   if (!Number.isInteger(request.intensity) || request.intensity < 0 || request.intensity > 3) {
     fail('intensity must be an integer from 0 to 3');
@@ -117,6 +117,7 @@ export function generateRitual(input) {
   const effectiveSeed = deriveEffectiveSeed(request);
   const effectiveRequest = { ...request, seed: effectiveSeed };
   const role = effectiveRequest.target_class === 'ROLE_ABSTRACT';
+  const vendor = effectiveRequest.target_class === 'VENDOR_ABSTRACT';
 
   const labels = TARGET_LABELS[effectiveRequest.target_class];
   const label = labels[deterministicIndex(effectiveRequest, labels.length)];
@@ -134,10 +135,12 @@ export function generateRitual(input) {
     target_class: effectiveRequest.target_class,
     intensity: effectiveRequest.intensity,
     ritual_style: effectiveRequest.ritual_style,
-    risk: role ? 'MEDIUM' : 'LOW',
+    risk: role || vendor ? 'MEDIUM' : 'LOW',
     risk_reason: role
       ? 'Abstract-role folk satire only; no named person, threat, protected-class attack, or call for harassment.'
-      : 'Profanity targets a software defect, system, process, or abstract vendor behavior.',
+      : vendor
+        ? 'Abstract vendor criticism; no named employee, threat, protected-class attack, or call for harassment.'
+        : 'Profanity targets a software defect, system, or process.',
     policy_snapshot: POLICY_SNAPSHOT,
     seed: effectiveSeed,
     generator_version: GENERATOR_VERSION

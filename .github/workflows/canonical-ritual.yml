@@ -10,7 +10,6 @@ on:
         type: choice
         options:
           - text
-          - image
       target_class:
         description: Abstract target class
         required: true

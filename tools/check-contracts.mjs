@@ -11,6 +11,7 @@ const receipt = await json('schemas/ci-voodoo.receipt.v1.schema.json');
 const plugin = await json('plugin.json');
 
 assert.equal(request.properties.schema.const, 'ci-voodoo.request.v1');
+assert.equal(request.properties.mode.const, 'text');
 assert.equal(request.properties.persist.const, false);
 assert.equal(request.additionalProperties, false);
 assert.equal(request.properties.incident_ref.pattern.includes('sha256'), true);
@@ -30,6 +31,7 @@ const architecture = await readFile('docs/plugin-architecture.md', 'utf8');
 const skill = await readFile('skills/ci-voodoo/SKILL.md', 'utf8');
 assert.match(workflow, /pull_request:/);
 assert.match(workflow, /workflow_dispatch:/);
+assert.doesNotMatch(workflow, /- image/);
 assert.match(workflow, /CI_VOODOO_INCIDENT_REF/);
 assert.doesNotMatch(workflow, /incident_summary/i);
 assert.match(workflow, /contents: read/);

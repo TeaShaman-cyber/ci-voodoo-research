@@ -86,7 +86,7 @@ Prepare and, when the runner exists, execute a structured canonical request.
 Canonical requests use:
 
     schema: ci-voodoo.request.v1
-    mode: text | image
+    mode: text
     target_class: SYSTEM
     intensity: 0..3
     ritual_style: ci-voodoo
@@ -98,7 +98,7 @@ Canonical success requires a runner receipt. A chat-generated line alone is not 
 
 ### image
 
-Produce an image brief containing:
+Image generation is outside canonical runner v1. Produce an image brief containing:
 
 - subject;
 - ritual motif;
