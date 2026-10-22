@@ -4,17 +4,78 @@
   "title": "CI Voodoo Result v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "text", "target_class", "intensity", "ritual_style", "risk", "risk_reason", "policy_snapshot", "seed", "generator_version"],
+  "required": [
+    "schema",
+    "text",
+    "target_class",
+    "intensity",
+    "ritual_style",
+    "risk",
+    "risk_reason",
+    "policy_snapshot",
+    "seed",
+    "generator_version",
+    "engine",
+    "engine_version"
+  ],
   "properties": {
-    "schema": { "const": "ci-voodoo.result.v1" },
-    "text": { "type": "string", "minLength": 1 },
-    "target_class": { "enum": ["BUG", "SYSTEM", "PROCESS", "VENDOR_ABSTRACT", "ROLE_ABSTRACT"] },
-    "intensity": { "type": "integer", "minimum": 0, "maximum": 3 },
-    "ritual_style": { "enum": ["plain-rage", "folk-curse", "ci-voodoo", "cato"] },
-    "risk": { "enum": ["LOW", "MEDIUM", "HIGH", "BLOCK"] },
-    "risk_reason": { "type": "string", "minLength": 1 },
-    "policy_snapshot": { "type": "string", "minLength": 1 },
-    "seed": { "type": "string", "minLength": 1 },
-    "generator_version": { "type": "string", "pattern": "^0\\.1\\.0$" }
+    "schema": {
+      "const": "ci-voodoo.result.v1"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_class": {
+      "enum": [
+        "BUG",
+        "SYSTEM",
+        "PROCESS",
+        "VENDOR_ABSTRACT",
+        "ROLE_ABSTRACT"
+      ]
+    },
+    "intensity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "ritual_style": {
+      "enum": [
+        "plain-rage",
+        "folk-curse",
+        "ci-voodoo",
+        "cato"
+      ]
+    },
+    "risk": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "BLOCK"
+      ]
+    },
+    "risk_reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_snapshot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_version": {
+      "const": "0.2.0"
+    },
+    "engine": {
+      "const": "libinsult"
+    },
+    "engine_version": {
+      "const": "0.6.2"
+    }
   }
 }

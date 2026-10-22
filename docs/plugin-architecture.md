@@ -124,18 +124,24 @@ Canonical generation exists so an artifact can be reproduced, inspected, tested,
 
 The generator is a first-class core component, not an implementation detail of auto-triggering.
 
-Prefer a small pure library with structured input/output over an agent inside the runner.
+Verified implementation:
 
-Reasons:
+    Node policy/contract wrapper
+    -> derive one effective seed
+    -> isolated Python 3.11 process
+    -> vendored LibInsult 0.6.2 (unmodified upstream source)
+    -> project-owned English CI word/template pack
+    -> Node risk classification + result/receipt provenance
 
-- deterministic tests;
-- seeded variation where useful;
-- low execution cost;
-- easier policy linting;
-- reproducible receipts;
-- independence from hidden model routing.
+LibInsult is used only as the phrase-combination engine. Target classes, allowed styles, role/vendor risk, persistence boundaries, and publication authority remain project-owned policy outside LibInsult.
 
-Candidate input:
+The canonical runner does not use LibInsult's upstream insult data. It loads `data/en-ci/`, which is maintained by this project.
+
+Process isolation is intentional: LibInsult uses Python's module-global `random`; canonical runs seed a fresh Python 3.11 process once, making replay deterministic without modifying upstream code.
+
+The vendored source is pinned to the PyPI 0.6.2 release artifact. `THIRD_PARTY.md` records wheel/sdist/source hashes because the observed GitLab master did not byte-match the PyPI 0.6.2 release.
+
+Input:
 
     schema: ci-voodoo.request.v1
     mode: text
@@ -146,14 +152,16 @@ Candidate input:
     seed: nullable
     persist: false
 
-Candidate output:
+Output adds engine provenance:
 
     schema: ci-voodoo.result.v1
     text: string
     risk: LOW | MEDIUM | HIGH | BLOCK
     policy_snapshot: string
-    seed: nullable
-    generator_version: semver
+    seed: string
+    generator_version: 0.2.0
+    engine: libinsult
+    engine_version: 0.6.2
 
 ## GitHub runner
 

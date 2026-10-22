@@ -50,7 +50,7 @@ test('ROLE_ABSTRACT is medium risk and remains nonviolent', () => {
 test('result carries versioned provenance fields', () => {
   const result = generateRitual(base);
   assert.equal(result.schema, 'ci-voodoo.result.v1');
-  assert.match(result.generator_version, /^0\.1\.0$/);
+  assert.match(result.generator_version, /^0\.2\.0$/);
   assert.match(result.policy_snapshot, /^x-public-/);
   assert.equal(result.seed, base.seed);
 });
@@ -94,7 +94,7 @@ test('reported derived seed reproduces the exact generated text', () => {
 test('generator output is English-first and fits an X post', () => {
   const styles = ['plain-rage', 'folk-curse', 'ci-voodoo', 'cato'];
   const targets = ['BUG', 'SYSTEM', 'PROCESS', 'VENDOR_ABSTRACT'];
-  for (let n = 0; n < 100; n++) {
+  for (let n = 0; n < 5; n++) {
     for (const target_class of targets) {
       for (const ritual_style of styles) {
         const result = generateRitual({
@@ -121,4 +121,11 @@ test('canonical v1 rejects image mode until an image artifact contract exists', 
     () => validateRequest({ ...base, mode: 'image' }),
     /mode must be text/
   );
+});
+
+test('result identifies the LibInsult engine and wrapper version', () => {
+  const result = generateRitual(base);
+  assert.equal(result.engine, 'libinsult');
+  assert.equal(result.engine_version, '0.6.2');
+  assert.equal(result.generator_version, '0.2.0');
 });

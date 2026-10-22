@@ -48,3 +48,11 @@ test('same canonical request yields same request id and result hash', async () =
   assert.equal(a.request_id, b.request_id);
   assert.equal(a.result_hash, b.result_hash);
 });
+
+test('canonical receipt records LibInsult engine provenance', async () => {
+  const outDir = await mkdtemp(join(tmpdir(), 'ci-voodoo-engine-'));
+  const receipt = await runCanonical({ request, outDir, runnerRevision: 'engine-test' });
+  assert.equal(receipt.engine, 'libinsult');
+  assert.equal(receipt.engine_version, '0.6.2');
+  assert.equal(receipt.generator_version, '0.2.0');
+});

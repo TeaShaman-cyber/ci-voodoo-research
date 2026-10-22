@@ -1,0 +1,27 @@
+{
+  "plain-rage": {
+    "BUG": "This <swear><adjective> <bug> needs to get fixed before <remedy>.",
+    "SYSTEM": "This <swear><adjective> <system> needs to get fixed before <remedy>.",
+    "PROCESS": "This <swear><adjective> <process> needs to get fixed before <remedy>.",
+    "VENDOR_ABSTRACT": "This <swear><adjective> <vendor> needs to get fixed before <remedy>."
+  },
+  "folk-curse": {
+    "BUG": "May this <adjective> <bug> hiccup on every flaky check until <remedy>.",
+    "SYSTEM": "May this <adjective> <system> hiccup on every flaky check until <remedy>.",
+    "PROCESS": "May this <adjective> <process> hiccup on every flaky check until <remedy>.",
+    "VENDOR_ABSTRACT": "May this <adjective> <vendor> hiccup on every flaky check until <remedy>.",
+    "ROLE_ABSTRACT": "May the <process> owner have their ears burn at every 500 until <remedy>."
+  },
+  "ci-voodoo": {
+    "BUG": "May git bisect descend upon this <swear><adjective> <bug> until <remedy>.",
+    "SYSTEM": "May git bisect descend upon this <swear><adjective> <system> until <remedy>.",
+    "PROCESS": "May git bisect descend upon this <swear><adjective> <process> until <remedy>.",
+    "VENDOR_ABSTRACT": "May git bisect descend upon this <swear><adjective> <vendor> until <remedy>."
+  },
+  "cato": {
+    "BUG": "Ceterum censeo: this <swear><adjective> <bug> must be fixed before <remedy>.",
+    "SYSTEM": "Ceterum censeo: this <swear><adjective> <system> must be fixed before <remedy>.",
+    "PROCESS": "Ceterum censeo: this <swear><adjective> <process> must be fixed before <remedy>.",
+    "VENDOR_ABSTRACT": "Ceterum censeo: this <swear><adjective> <vendor> must be fixed before <remedy>."
+  }
+}
