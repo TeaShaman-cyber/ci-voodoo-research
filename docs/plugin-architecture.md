@@ -138,11 +138,11 @@ Reasons:
 Candidate input:
 
     schema: ci-voodoo.request.v1
-    mode: micro | text | canonical | image
+    mode: text
     target_class: BUG | SYSTEM | PROCESS | VENDOR_ABSTRACT | ROLE_ABSTRACT
     intensity: 0..3
     ritual_style: plain-rage | folk-curse | ci-voodoo | cato
-    incident_summary: string
+    incident_ref: sha256:<opaque digest>
     seed: nullable
     persist: false
 
@@ -216,7 +216,7 @@ Then:
     native image capability UNAVAILABLE
     -> return image brief/prompt only
 
-Image support is useful but not required for core text/canonical functionality.
+Image support is useful but not required for core text/canonical functionality. Canonical runner v1 is text-only; image requests stay on the host-native image path until a versioned image artifact contract exists.
 
 ## Auto-trigger: optional bonus
 
