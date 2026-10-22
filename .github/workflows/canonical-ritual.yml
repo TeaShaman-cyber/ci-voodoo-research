@@ -1,6 +1,7 @@
-name: Canonical CI Voodoo
+name: CI Voodoo
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       mode:
@@ -51,7 +52,22 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify repository
+        run: ./tools/dev/check
+
   canonical:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

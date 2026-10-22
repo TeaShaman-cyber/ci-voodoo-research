@@ -28,6 +28,7 @@ assert.match(plugin.version, /^0\.1\.0$/);
 const workflow = await readFile('.github/workflows/canonical-ritual.yml', 'utf8');
 const architecture = await readFile('docs/plugin-architecture.md', 'utf8');
 const skill = await readFile('skills/ci-voodoo/SKILL.md', 'utf8');
+assert.match(workflow, /pull_request:/);
 assert.match(workflow, /workflow_dispatch:/);
 assert.match(workflow, /CI_VOODOO_INCIDENT_REF/);
 assert.doesNotMatch(workflow, /incident_summary/i);
