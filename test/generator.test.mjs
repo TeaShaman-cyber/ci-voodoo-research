@@ -43,8 +43,8 @@ test('rejects named-person target classes', () => {
 test('ROLE_ABSTRACT is medium risk and remains nonviolent', () => {
   const result = generateRitual({ ...base, target_class: 'ROLE_ABSTRACT', ritual_style: 'folk-curse' });
   assert.equal(result.risk, 'MEDIUM');
-  assert.match(result.text, /(уши|икн|CI|rollback|500)/i);
-  assert.doesNotMatch(result.text, /(уб(ей|ить)|смерт|болезн|травм)/i);
+  assert.match(result.text, /(ears|hiccup|CI|rollback|500)/i);
+  assert.doesNotMatch(result.text, /(kill|death|disease|injur)/i);
 });
 
 test('result carries versioned provenance fields', () => {
@@ -53,4 +53,59 @@ test('result carries versioned provenance fields', () => {
   assert.match(result.generator_version, /^0\.1\.0$/);
   assert.match(result.policy_snapshot, /^x-public-/);
   assert.equal(result.seed, base.seed);
+});
+
+test('ROLE_ABSTRACT rejects non-folk-curse styles', () => {
+  assert.throws(
+    () => validateRequest({ ...base, target_class: 'ROLE_ABSTRACT', ritual_style: 'plain-rage' }),
+    /ROLE_ABSTRACT.*folk-curse/
+  );
+});
+
+test('ROLE_ABSTRACT rejects intensity above 2', () => {
+  assert.throws(
+    () => validateRequest({ ...base, target_class: 'ROLE_ABSTRACT', ritual_style: 'folk-curse', intensity: 3 }),
+    /ROLE_ABSTRACT.*intensity/
+  );
+});
+
+test('empty explicit seed is rejected', () => {
+  assert.throws(
+    () => validateRequest({ ...base, seed: '' }),
+    /seed must be a non-empty string or null/
+  );
+});
+
+test('reported derived seed reproduces the exact generated text', () => {
+  const request = {
+    ...base,
+    target_class: 'BUG',
+    ritual_style: 'plain-rage',
+    incident_ref: 'sha256:0000000000000000',
+    seed: null
+  };
+  const first = generateRitual(request);
+  const replay = generateRitual({ ...request, seed: first.seed });
+  assert.equal(replay.text, first.text);
+  assert.equal(replay.seed, first.seed);
+});
+
+
+test('generator output is English-first and fits an X post', () => {
+  const styles = ['plain-rage', 'folk-curse', 'ci-voodoo', 'cato'];
+  const targets = ['BUG', 'SYSTEM', 'PROCESS', 'VENDOR_ABSTRACT'];
+  for (let n = 0; n < 100; n++) {
+    for (const target_class of targets) {
+      for (const ritual_style of styles) {
+        const result = generateRitual({
+          ...base,
+          target_class,
+          ritual_style,
+          seed: 'x-' + n
+        });
+        assert.equal(result.text.length <= 280, true, result.text);
+        assert.doesNotMatch(result.text, /[А-Яа-яЁё]/u);
+      }
+    }
+  }
 });

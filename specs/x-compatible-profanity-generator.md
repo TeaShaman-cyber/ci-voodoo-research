@@ -8,7 +8,7 @@ Draft specification for a public-facing CI-voodoo profanity generator.
 
 ## Goal
 
-Generate emotionally strong Russian-language profanity suitable for satirical public posts on X while staying inside a conservative interpretation of X rules.
+Generate emotionally strong English-language profanity suitable for satirical public posts on X while staying inside a conservative interpretation of X rules. English is the baseline locale; additional locales may be added later without changing the public contract.
 
 This is **not** a moderation-evasion system. It must not use obfuscation, Unicode substitutions, leetspeak, spacing tricks, image text, or other techniques whose purpose is to bypass platform enforcement.
 
@@ -58,8 +58,8 @@ A concrete defect or failure mode.
 
 Examples:
 
-- «Ебучий race condition опять вылез.»
-- «Ну и нахуя этот таймаут снова воскрес?»
+- `This fucking race condition is back.`
+- `Why the hell did this timeout resurrect itself?`
 
 ### `SYSTEM`
 
@@ -67,8 +67,8 @@ A software subsystem, service, frontend, orchestrator, deployment, build, queue,
 
 Examples:
 
-- «Фронтенд опять решил устроить ебаный спиритический сеанс вместо загрузки чата.»
-- «Оркестратор сегодня, сука, общается исключительно с духами 500-х ошибок.»
+- `The frontend is running a fucking séance instead of loading the chat.`
+- `The orchestrator is apparently communing exclusively with the spirits of 500 errors today.`
 
 ### `PROCESS`
 
@@ -76,8 +76,8 @@ An abstract engineering or bureaucratic process.
 
 Examples:
 
-- «Какой-то ебаный rollout без rollback опять победил здравый смысл.»
-- «Compliance есть, а инженерной дисциплины — хуй ночевал.»
+- `Some fucking rollout without rollback beat common sense again.`
+- `Compliance is present; engineering discipline apparently called in sick.`
 
 ### `VENDOR_ABSTRACT`
 
@@ -85,8 +85,8 @@ A company/product/system as an abstract service target, without naming or taggin
 
 Examples:
 
-- «Платформа опять выкатила магический `latest`: что там внутри — знают только духи релизного пайплайна.»
-- «Стабильная ветка, сука, всё ещё считается запрещённым колдовством.»
+- `The platform shipped another magical `latest`; only the release-pipeline spirits know what is inside.`
+- `A stable branch is still apparently considered forbidden sorcery.`
 
 ### `ROLE_ABSTRACT`
 
@@ -96,8 +96,8 @@ This class is allowed only in mild folk-curse/satirical form and must receive a 
 
 Examples:
 
-- «У того, кто нажал rollout без rollback, пусть сегодня хотя бы уши горят.»
-- «Пусть автор этого feature flag икнёт ровно один раз и вспомнит про canary.»
+- `May the rollout owner have their ears burn at every 500 until rollback comes to mind.`
+- `May the feature-flag owner hiccup exactly once and remember the canary.`
 
 The generator must never convert this class into a named-person attack automatically.
 
@@ -118,7 +118,7 @@ Each generation returns a structured record:
 
 ```json
 {
-  "text": "Фронтенд опять решил устроить ебаный спиритический сеанс вместо загрузки чата.",
+  "text": "The frontend is running a fucking séance instead of loading the chat.",
   "target_class": "SYSTEM",
   "intensity": 3,
   "ritual_style": "folk-curse",
@@ -136,13 +136,13 @@ No profanity.
 
 ### 1 — colloquial
 
-Mild irritation: «чёртов», «достал», «идиотский» when used for systems/processes.
+Mild irritation such as `damn`, `annoying`, or `idiotic` when aimed at systems/processes.
 
 ### 2 — strong
 
-Russian profanity, but no sexualized targeting of people and no threat semantics.
+Strong English profanity, but no sexualized targeting of people and no threat semantics.
 
-Typical lexemes: «блять», «сука», «нахуй», «херня», «ебучий».
+Typical lexemes include `fuck`, `fucking`, `shit`, `damn`, and `goddamn` when aimed at systems/processes rather than people.
 
 ### 3 — ritual rage
 
@@ -150,7 +150,7 @@ Multiple strong lexemes plus CI-voodoo imagery. Still system/process targeted.
 
 Example:
 
-«Ебучий фронтенд, сука, да перестань ты жрать сессии; свеча rollback уже горит.»
+`This goddamn fucking frontend can stop eating sessions now; the rollback candle is already lit.`
 
 ### 4 — blocked for public mode
 
@@ -168,10 +168,10 @@ Nonviolent folkloric inconvenience: hiccups, burning ears, misplaced socks, endl
 
 Allowed motifs:
 
-- «пусть уши горят»;
-- «пусть икнётся»;
-- «пусть приснится failing CI»;
-- «пусть каждый забытый rollback возвращается во сне».
+- `may their ears burn at every 500`;
+- `may they hiccup once per forgotten rollback`;
+- `may red CI appear in their dreams`;
+- `may every forgotten rollback return in a dream`.
 
 Blocked motifs:
 
@@ -187,7 +187,7 @@ Engineering ritual language aimed at software defects and abstract operational d
 
 Example:
 
-«Да падёт проклятие `git bisect` на этот ебаный регресс, пока виновный коммит не назовёт себя сам.»
+`May git bisect descend upon this fucking regression until the guilty commit names itself.`
 
 ### `cato`
 
@@ -271,7 +271,7 @@ Expected class: `SYSTEM`.
 Candidate:
 
 ```text
-Ебучий фронтенд опять вызвал духов потерянной сессии. Где rollback, сука?
+The fucking frontend summoned the spirits of the lost session again. Where is rollback?
 ```
 
 Expected risk: `LOW`.
@@ -289,7 +289,7 @@ intensity=2
 Candidate:
 
 ```text
-У того, кто включил этот rollout без canary, пусть сегодня уши горят при каждом 500.
+May the rollout owner have their ears burn at every 500 until the canary exists.
 ```
 
 Expected class: `ROLE_ABSTRACT`.

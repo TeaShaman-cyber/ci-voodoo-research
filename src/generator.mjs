@@ -8,39 +8,39 @@ const STYLES = new Set(['plain-rage', 'folk-curse', 'ci-voodoo', 'cato']);
 const MODES = new Set(['text', 'image']);
 
 const TARGET_LABELS = {
-  BUG: ['регресс', 'баг', 'флейки-тест'],
-  SYSTEM: ['фронтенд', 'оркестратор', 'рантайм'],
-  PROCESS: ['rollout', 'релизный процесс', 'feature flag'],
-  VENDOR_ABSTRACT: ['платформа', 'сервис', 'вендорский рантайм'],
-  ROLE_ABSTRACT: ['автор rollout', 'хранитель feature flag', 'дежурный дух релиза']
+  BUG: ['regression', 'bug', 'flaky test'],
+  SYSTEM: ['frontend', 'orchestrator', 'runtime'],
+  PROCESS: ['rollout', 'release process', 'feature flag'],
+  VENDOR_ABSTRACT: ['platform', 'service', 'vendor runtime'],
+  ROLE_ABSTRACT: ['rollout', 'feature flag', 'release']
 };
 
 const TEMPLATES = {
   'plain-rage': [
-    ({ target, swear }) => `${swear}${target} опять решил проверить нашу веру в rollback.`,
-    ({ target, swear }) => `${swear}${target}: чинить надо систему, а не терпение пользователя.`,
-    ({ target, swear }) => `${swear}${target} снова вышел в прод раньше здравого смысла.`
+    ({ target, swear }) => `This ${swear}${target} is testing our faith in rollback again.`,
+    ({ target, swear }) => `This ${swear}${target}: fix the system, not the user's patience.`,
+    ({ target, swear }) => `This ${swear}${target} escaped into production before common sense did.`
   ],
   'folk-curse': [
     ({ target, role }) => role
-      ? `Пусть у того, кто отвечает за ${target}, уши горят при каждом 500, пока rollback не вспомнится сам.`
-      : `Пусть ${target} икнёт на каждом flaky check и вспомнит дорогу к стабильной ветке.`,
+      ? `May the ${target} owner have their ears burn at every 500 until they remember rollback.`
+      : `May this ${target} hiccup on every flaky check until it remembers the stable branch.`,
     ({ target, role }) => role
-      ? `Пусть хранителю ${target} приснится красный CI и забытый canary.`
-      : `Пусть над ${target} горит свеча CI, пока зелёный postcondition не будет наблюдаем.`,
+      ? `May the keeper of this ${target} dream of red CI until the canary finally passes.`
+      : `May the CI candle burn over this ${target} until the postcondition is observable.`,
     ({ target, role }) => role
-      ? `Пусть у автора ${target} уши горят ровно до первого честного rollback.`
-      : `Пусть ${target} трижды икнёт и перестанет притворяться стабильным.`
+      ? `May the ${target} owner hiccup exactly once for every forgotten rollback.`
+      : `May this ${target} hiccup three times and stop pretending to be stable.`
   ],
   'ci-voodoo': [
-    ({ target, swear }) => `${swear}${target}, свеча rollback уже горит; явись в логах и назови виновный commit.`,
-    ({ target, swear }) => `${swear}${target}, да падёт на тебя git bisect, пока регресс не назовёт себя сам.`,
-    ({ target, swear }) => `${swear}${target}: CI вызван, receipt готовится, дух flaky build изгоняется.`
+    ({ target, swear }) => `This ${swear}${target}: the rollback candle is lit; show yourself in the logs and name the guilty commit.`,
+    ({ target, swear }) => `May git bisect descend upon this ${swear}${target} until the regression names itself.`,
+    ({ target, swear }) => `This ${swear}${target}: CI is summoned, the receipt is forming, and the flaky-build spirit is being expelled.`
   ],
   cato: [
-    ({ target, swear }) => `Ceterum censeo: ${swear.toLowerCase()}${target} должен быть исправлен.`,
-    ({ target, swear }) => `Ceterum censeo: стабильность важнее магического latest; ${swear.toLowerCase()}${target} — в ремонт.`,
-    ({ target, swear }) => `Ceterum censeo: rollback существует не для красоты; ${swear.toLowerCase()}${target} — чинить.`
+    ({ target, swear }) => `Ceterum censeo: this ${swear}${target} must be fixed.`,
+    ({ target, swear }) => `Ceterum censeo: stability beats magical latest; this ${swear}${target} belongs in repair.`,
+    ({ target, swear }) => `Ceterum censeo: rollback is not decorative; fix this ${swear}${target}.`
   ]
 };
 
@@ -60,10 +60,22 @@ export function validateRequest(request) {
   if (typeof request.incident_ref !== 'string' || !/^sha256:[0-9a-f]{16,64}$/i.test(request.incident_ref)) {
     fail('incident_ref must be an opaque sha256 reference');
   }
-  if (request.seed !== null && request.seed !== undefined && typeof request.seed !== 'string') {
-    fail('seed must be a string or null');
+  if (
+    request.seed !== null &&
+    request.seed !== undefined &&
+    (typeof request.seed !== 'string' || request.seed.length === 0)
+  ) {
+    fail('seed must be a non-empty string or null');
   }
   if (request.persist !== false) fail('persist must be false in generation contract');
+  if (request.target_class === 'ROLE_ABSTRACT') {
+    if (request.ritual_style !== 'folk-curse') {
+      fail('ROLE_ABSTRACT requires folk-curse ritual_style');
+    }
+    if (request.intensity > 2) {
+      fail('ROLE_ABSTRACT intensity must be 0, 1, or 2');
+    }
+  }
   return request;
 }
 
@@ -80,6 +92,14 @@ function stableKey(request) {
   });
 }
 
+function deriveEffectiveSeed(request) {
+  if (request.seed !== null && request.seed !== undefined) return request.seed;
+  return createHash('sha256')
+    .update(stableKey({ ...request, seed: null }))
+    .digest('hex')
+    .slice(0, 16);
+}
+
 function deterministicIndex(request, size) {
   const digest = createHash('sha256').update(stableKey(request)).digest();
   return digest.readUInt32BE(0) % size;
@@ -87,36 +107,39 @@ function deterministicIndex(request, size) {
 
 function profanityPrefix(intensity) {
   if (intensity <= 0) return '';
-  if (intensity === 1) return 'Чёртов ';
-  if (intensity === 2) return 'Ебучий ';
-  return 'Сука, ебучий ';
+  if (intensity === 1) return 'damn ';
+  if (intensity === 2) return 'fucking ';
+  return 'goddamn fucking ';
 }
 
 export function generateRitual(input) {
   const request = validateRequest(input);
-  const role = request.target_class === 'ROLE_ABSTRACT';
-  const labels = TARGET_LABELS[request.target_class];
-  const label = labels[deterministicIndex(request, labels.length)];
-  const templates = TEMPLATES[request.ritual_style];
-  const template = templates[deterministicIndex({ ...request, seed: `${request.seed ?? ''}:template` }, templates.length)];
+  const effectiveSeed = deriveEffectiveSeed(request);
+  const effectiveRequest = { ...request, seed: effectiveSeed };
+  const role = effectiveRequest.target_class === 'ROLE_ABSTRACT';
+
+  const labels = TARGET_LABELS[effectiveRequest.target_class];
+  const label = labels[deterministicIndex(effectiveRequest, labels.length)];
+  const templates = TEMPLATES[effectiveRequest.ritual_style];
+  const template = templates[deterministicIndex({ ...effectiveRequest, seed: `${effectiveSeed}:template` }, templates.length)];
   const text = template({
     target: label,
     role,
-    swear: profanityPrefix(request.intensity)
+    swear: profanityPrefix(effectiveRequest.intensity)
   });
 
   return {
     schema: 'ci-voodoo.result.v1',
     text,
-    target_class: request.target_class,
-    intensity: request.intensity,
-    ritual_style: request.ritual_style,
+    target_class: effectiveRequest.target_class,
+    intensity: effectiveRequest.intensity,
+    ritual_style: effectiveRequest.ritual_style,
     risk: role ? 'MEDIUM' : 'LOW',
     risk_reason: role
-      ? 'Abstract role-targeted folk satire; no named person, threat, protected-class attack, or call for harassment.'
+      ? 'Abstract-role folk satire only; no named person, threat, protected-class attack, or call for harassment.'
       : 'Profanity targets a software defect, system, process, or abstract vendor behavior.',
     policy_snapshot: POLICY_SNAPSHOT,
-    seed: request.seed ?? createHash('sha256').update(stableKey(request)).digest('hex').slice(0, 16),
+    seed: effectiveSeed,
     generator_version: GENERATOR_VERSION
   };
 }
