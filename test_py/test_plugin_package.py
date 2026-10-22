@@ -58,6 +58,13 @@ if __name__ == '__main__':
     unittest.main()
 
 class MissionStatementTests(unittest.TestCase):
+    def test_plugin_manifest_description_is_incident_first(self):
+        manifest = json.loads((ROOT / 'plugin.json').read_text(encoding='utf-8'))
+        description = manifest['description']
+        self.assertIn('OpenAI/ChatGPT engineering incidents', description)
+        self.assertIn('profanity/satire artifacts', description)
+        self.assertIn('publication-ready X copy', description)
+
     def test_skill_description_leads_with_incident_use_case(self):
         skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
         frontmatter = skill.split('---', 2)[1]
