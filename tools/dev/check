@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/../.."
+npm run check
+git diff --check
+printf '%s\n' DEV_CHECK_PASS

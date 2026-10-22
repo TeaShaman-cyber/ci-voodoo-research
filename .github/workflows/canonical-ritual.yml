@@ -1,0 +1,85 @@
+name: Canonical CI Voodoo
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Artifact mode
+        required: true
+        type: choice
+        options:
+          - text
+          - image
+      target_class:
+        description: Abstract target class
+        required: true
+        type: choice
+        options:
+          - BUG
+          - SYSTEM
+          - PROCESS
+          - VENDOR_ABSTRACT
+          - ROLE_ABSTRACT
+      intensity:
+        description: Public intensity 0-3
+        required: true
+        type: choice
+        options:
+          - "0"
+          - "1"
+          - "2"
+          - "3"
+      ritual_style:
+        description: Ritual style
+        required: true
+        type: choice
+        options:
+          - plain-rage
+          - folk-curse
+          - ci-voodoo
+          - cato
+      incident_ref:
+        description: Opaque sha256 reference only; never paste raw chat text
+        required: true
+        type: string
+      seed:
+        description: Optional deterministic seed
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  canonical:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify
+        run: ./tools/dev/check
+
+      - name: Generate canonical artifact
+        env:
+          CI_VOODOO_MODE: ${{ inputs.mode }}
+          CI_VOODOO_TARGET_CLASS: ${{ inputs.target_class }}
+          CI_VOODOO_INTENSITY: ${{ inputs.intensity }}
+          CI_VOODOO_RITUAL_STYLE: ${{ inputs.ritual_style }}
+          CI_VOODOO_INCIDENT_REF: ${{ inputs.incident_ref }}
+          CI_VOODOO_SEED: ${{ inputs.seed }}
+          CI_VOODOO_OUT_DIR: artifacts/canonical
+          CI_VOODOO_RUNNER_REVISION: ${{ github.sha }}
+        run: node src/cli.mjs
+
+      - name: Upload canonical receipt bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-voodoo-canonical
+          path: artifacts/canonical
+          if-no-files-found: error

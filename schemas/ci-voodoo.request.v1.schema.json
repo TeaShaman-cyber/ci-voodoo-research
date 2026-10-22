@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ci-voodoo:request:v1",
+  "title": "CI Voodoo Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "mode", "target_class", "intensity", "ritual_style", "incident_ref", "seed", "persist"],
+  "properties": {
+    "schema": { "const": "ci-voodoo.request.v1" },
+    "mode": { "enum": ["text", "image"] },
+    "target_class": { "enum": ["BUG", "SYSTEM", "PROCESS", "VENDOR_ABSTRACT", "ROLE_ABSTRACT"] },
+    "intensity": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "ritual_style": { "enum": ["plain-rage", "folk-curse", "ci-voodoo", "cato"] },
+    "incident_ref": { "type": "string", "pattern": "^sha256:[0-9a-fA-F]{16,64}$" },
+    "seed": { "type": ["string", "null"] },
+    "persist": { "const": false }
+  }
+}

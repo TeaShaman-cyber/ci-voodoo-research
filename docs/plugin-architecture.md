@@ -142,7 +142,7 @@ Candidate input:
     target_class: BUG | SYSTEM | PROCESS | VENDOR_ABSTRACT | ROLE_ABSTRACT
     intensity: 0..3
     ritual_style: plain-rage | folk-curse | ci-voodoo | cato
-    incident_summary: string
+    incident_ref: sha256:<opaque digest>
     seed: nullable
     persist: false
 

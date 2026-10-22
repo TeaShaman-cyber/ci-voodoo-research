@@ -90,7 +90,7 @@ Canonical requests use:
     target_class: SYSTEM
     intensity: 0..3
     ritual_style: ci-voodoo
-    incident_summary: string
+    incident_ref: sha256:<opaque digest>
     seed: nullable
     persist: false
 

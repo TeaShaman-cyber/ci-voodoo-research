@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ci-voodoo:receipt:v1",
+  "title": "CI Voodoo Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "generator_version", "policy_snapshot", "request_hash", "seed", "runner_revision", "result_hash", "artifact_location", "status"],
+  "properties": {
+    "schema": { "const": "ci-voodoo.receipt.v1" },
+    "request_id": { "type": "string", "pattern": "^ci-[0-9a-f]{16}$" },
+    "generator_version": { "type": "string", "pattern": "^0\\.1\\.0$" },
+    "policy_snapshot": { "type": "string", "minLength": 1 },
+    "request_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "seed": { "type": "string", "minLength": 1 },
+    "runner_revision": { "type": "string", "minLength": 1 },
+    "result_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "artifact_location": { "const": "result.json" },
+    "status": { "const": "COMPLETED" }
+  }
+}
