@@ -23,3 +23,10 @@ The gate checks Node contract/runner tests, direct Python adapter tests, vendore
 ## Licensing and provenance
 
 The project is GPLv3. Vendored LibInsult is GPLv3+; vendored `six` is MIT. Exact release/source hashes are recorded in [`THIRD_PARTY.md`](THIRD_PARTY.md).
+## Build the portable plugin
+
+```sh
+python3 tools/build_plugin.py dist/ci-voodoo-plugin-0.1.0.zip
+```
+
+The distributable is intentionally minimal: `plugin.json`, `skills/ci-voodoo/SKILL.md`, and the bundled public-text policy reference. Runtime source, vendored engine code, tests, and repository internals are not included in the skills-only package.

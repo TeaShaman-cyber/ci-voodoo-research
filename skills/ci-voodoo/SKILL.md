@@ -67,7 +67,7 @@ Do not automatically escalate to a named-person target.
 
 For profanity and public-text constraints, follow:
 
-    specs/x-compatible-profanity-generator.md
+    references/x-compatible-profanity-generator.md
 
 ## Output modes
 
