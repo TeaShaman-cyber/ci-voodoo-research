@@ -74,5 +74,29 @@ class MissionStatementTests(unittest.TestCase):
     def test_skill_core_contract_starts_from_incident_not_artifact_format(self):
         skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
         self.assertIn('OpenAI/ChatGPT engineering failure\n    -> structured incident/target', skill)
-        self.assertIn('-> profanity/satire artifact', skill)
-        self.assertIn('-> optional publication-ready X artifact', skill)
+        self.assertIn('-> run the canonical generator/runner', skill)
+        self.assertIn('-> read back generated text + receipt', skill)
+        self.assertIn('-> generate a companion CI-voodoo image', skill)
+        self.assertIn('-> optionally prepare publication-ready X copy', skill)
+
+class ExecutionPathTests(unittest.TestCase):
+    def test_real_incident_path_uses_existing_runner_routes(self):
+        skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('native GitHub integration', skill)
+        self.assertIn('MarcoPolo', skill)
+        self.assertIn('workflow_dispatch', skill)
+        self.assertIn('run the canonical generator/runner', skill)
+
+    def test_skill_does_not_require_mcp_facade(self):
+        skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
+        self.assertNotIn('ritual.plan', skill)
+        self.assertNotIn('ritual.run', skill)
+        self.assertNotIn('ritual.status', skill)
+        self.assertNotIn('ritual.artifact', skill)
+        self.assertNotIn('Plugin MCP facade', skill)
+
+    def test_incident_path_requests_companion_image_when_native_imagegen_exists(self):
+        skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('generate a companion CI-voodoo image', skill)
+        self.assertIn('native image generation', skill)
+        self.assertIn('unless the user asks for text only', skill)

@@ -9,15 +9,16 @@ CI-voodoo automates profanity/satire responses to real OpenAI/ChatGPT engineerin
 
 It remains explicitly invokable first. Implicit auto-triggering is an optional convenience.
 
-The core contract is:
+The core contract for a real OpenAI/ChatGPT incident is:
 
     OpenAI/ChatGPT engineering failure
     -> structured incident/target
-    -> profanity/satire artifact
-    -> optional canonical receipt
-    -> optional publication-ready X artifact
+    -> run the canonical generator/runner
+    -> read back generated text + receipt
+    -> generate a companion CI-voodoo image when native image generation is available
+    -> optionally prepare publication-ready X copy
 
-Publishing itself remains a separate authorized action. Native image generation is an optional host capability, not a core dependency.
+Publishing itself remains a separate authorized action. The generator/runner and image generation are execution steps; they do not imply publication authority.
 
 ## Explicit mode
 
@@ -31,7 +32,9 @@ Examples:
 - request a publication-ready X artifact or CI-voodoo image;
 - ask for standalone ritual/curse/chant output when no incident context is needed.
 
-Produce the requested artifact at the requested depth.
+For a real OpenAI/ChatGPT incident, do not stop at an improvised chat line when the canonical runner is reachable. Run the generator first, use its generated text as the primary profanity/satire artifact, and generate a companion image when native image generation is available unless the user asks for text only.
+
+For standalone ritual/curse/chant requests with no incident workflow intent, a direct chat artifact is acceptable.
 
 ## Optional implicit mode
 
@@ -87,7 +90,12 @@ A short ritual, curse, caption, chant, bug exorcism, poster copy, or related tex
 
 ### canonical
 
-Prepare and, when the runner exists, execute a structured canonical request.
+For real incident handling, canonical generation is the default execution path when repository execution is reachable. Use the native GitHub integration if it exposes workflow dispatch; otherwise use MarcoPolo to operate the repository and dispatch the existing GitHub Actions runner. Do not invent a new MCP facade for this path.
+
+Repository: `TeaShaman-cyber/ci-voodoo-research`
+Workflow: `.github/workflows/canonical-ritual.yml` (`CI Voodoo`)
+Trigger: `workflow_dispatch`
+Artifact: `ci-voodoo-canonical`
 
 Canonical requests use:
 
@@ -102,9 +110,21 @@ Canonical requests use:
 
 Canonical success requires a runner receipt. A chat-generated line alone is not a canonical receipt.
 
+Execution procedure:
+
+1. Classify the incident into the existing target taxonomy and choose intensity/style.
+2. Compute an opaque `incident_ref` as a SHA-256 reference without placing raw chat/incident text in public workflow inputs.
+3. Dispatch `canonical-ritual.yml` through the native GitHub integration when that integration exposes workflow dispatch.
+4. Otherwise, use MarcoPolo and the repository's authenticated GitHub CLI/API route to dispatch `workflow_dispatch` with the bounded inputs above.
+5. Observe the workflow to terminal state.
+6. Read back the `ci-voodoo-canonical` artifact and use `result.json` as the generated text plus `receipt.json` as canonical evidence.
+7. If execution cannot be completed or verified, report the canonical path as unavailable/degraded and only then fall back to a clearly labeled non-canonical chat artifact.
+
 ### image
 
-Image generation is outside canonical runner v1. Produce an image brief containing:
+Image generation is outside canonical runner v1 and uses the host's native image generation capability. For a real incident, after the runner returns generated text, generate a companion CI-voodoo image when native image generation is available unless the user asks for text only.
+
+Build the image brief from the same incident classification and generated artifact. It should contain:
 
 - subject;
 - ritual motif;
@@ -114,22 +134,18 @@ Image generation is outside canonical runner v1. Produce an image brief containi
 - mood;
 - exclusions.
 
-If the current host exposes native image generation and the user requested rendering, use it.
+If native image generation is unavailable, return the image brief/prompt and say that rendering was not available in the current host.
 
-Otherwise return the image brief/prompt.
+## Runner route
 
-## Planned canonical runner
+The canonical runner already exists in GitHub Actions. It does not require a plugin-local MCP facade.
 
-Expected plugin-facing surface:
+Use the thinnest available route:
 
-    ritual.plan
-    ritual.run
-    ritual.status
-    ritual.artifact
+    native GitHub integration with workflow dispatch
+    -> otherwise MarcoPolo + authenticated GitHub workflow dispatch
 
-The implementation may use GitHub Actions internally.
-
-GitHub Actions is a runner implementation detail, not a hidden user-side plugin dependency.
+GitHub Actions is the canonical execution backend; MarcoPolo or the native GitHub integration are control-plane routes to it.
 
 ## Authority boundary
 
