@@ -4,145 +4,164 @@ Issue: #4
 
 Status: DESIGN / IMPLEMENTATION_NOT_YET_PROVEN
 
+## Priority correction
+
+The plugin must be useful **without** implicit auto-triggering.
+
+Auto-trigger is an optional UX enhancement. Failure to auto-trigger does not block the plugin, the generator, the GitHub runner, image generation, or release acceptance.
+
+Core path:
+
+    explicit invocation
+    -> CI-voodoo skill/plugin
+    -> generation runtime
+    -> optional GitHub runner for reproducible execution/receipts
+    -> optional native image generation when available
+
+Bonus path:
+
+    semantic frustration match
+    -> implicit skill activation
+    -> same core path
+
+Therefore:
+
+    EXPLICIT INVOCATION = REQUIRED
+    GENERATION = REQUIRED
+    RUNNER = REQUIRED FOR CANONICAL/REPRODUCIBLE MODE
+    IMAGE ADAPTER = OPTIONAL CAPABILITY
+    AUTO_TRIGGER = OPTIONAL BONUS
+
 ## Design objective
 
 Build a small model-facing plugin that can:
 
-1. be discovered automatically from skill metadata;
-2. activate on a narrow semantic class of OpenAI/ChatGPT reliability frustration;
-3. produce a lightweight in-chat ritual immediately;
-4. optionally dispatch a reproducible generator job;
-5. optionally render an image through a native host capability;
-6. keep generation, persistence, and publication as separate authority boundaries.
+1. respond reliably when explicitly invoked;
+2. generate CI-voodoo text/artifacts through a versioned generator contract;
+3. dispatch reproducible canonical generation through a GitHub-backed runner;
+4. produce receipts for canonical runs;
+5. optionally render images through a native host capability;
+6. optionally auto-trigger on a narrow semantic class of OpenAI/ChatGPT engineering frustration;
+7. keep generation, persistence, and publication as separate authority boundaries.
 
-The design reuses the Sonar lesson from TeaShaman-cyber/theseus-sonar-skill#8:
+The Sonar precedent remains useful for the optional auto-trigger layer:
 
-    DISCOVERY != AUTO_TRIGGER != EXECUTION != PUBLICATION
+    DISCOVERY != AUTO_TRIGGER
 
-## Current OpenAI constraints
+But plugin success is defined independently:
 
-As of 2026-10-21:
+    EXPLICIT INVOCATION
+    -> EXECUTION
+    -> VERIFICATION
 
-- plugin skills are discovered from name and description metadata;
-- the full SKILL.md loads only after model selection;
-- portable plugins use root plugin.json with the Agent Plugins schema;
-- plugins may be skills-only or include MCP servers;
-- public plugin tools should not depend on the model invoking another plugin or connector as a hidden implementation dependency;
-- image generation is a separate host or tool capability and must be treated as available only when actually exposed by the runtime.
+and, when canonical mode is requested:
 
-Primary references:
-
-- https://developers.openai.com/plugins/concepts/skills
-- https://developers.openai.com/plugins/build/skills
-- https://developers.openai.com/plugins/build/plugins
-- https://developers.openai.com/plugins/plugin-guidelines
-- https://developers.openai.com/api/docs/guides/tools-image-generation
+    EXECUTION
+    -> RECEIPT
 
 ## Component model
 
-    user message
-        |
-        v
-    skill discovery metadata
-        |
-        | semantic match or explicit invocation
-        v
-    CI-voodoo SKILL.md
-      |            |                |
-      | fast       | reproducible   | image
-      v            v                v
-    chat       plugin MCP       native image
-    artifact    ritual.*        capability
-                   |
-                   v
-              GitHub Actions
-              versioned generator
-              tests and receipts
+    explicit user invocation
+            |
+            v
+    CI-voodoo skill/plugin
+      |             |                 |
+      | fast        | canonical       | image
+      v             v                 v
+    chat        generation runtime   image brief
+    artifact         |                 |
+                     v                 +-> native image tool if available
+                plugin MCP
+                ritual.*
+                     |
+                     v
+                GitHub Actions
+                versioned runner
+                tests + receipts
 
-## Why the fast path stays skill-only
+Optional bonus:
 
-Most incidents do not need a remote job.
+    contextual frustration
+            |
+            v
+    semantic skill auto-trigger
+            |
+            +-> same CI-voodoo skill/plugin path
 
-Example:
+The optional trigger layer must never become a dependency of the core path.
 
-    сука опять чат съел последний ответ
+## Core behavior
 
-The correct default behavior is:
+### Explicit invocation
 
-    primary recovery or help
-    +
-    one compact ritual garnish
+This is the normative entrypoint.
 
-No network round-trip, GitHub write, Action run, or artifact persistence is needed.
+Examples include:
 
-This keeps the auto-trigger cheap and non-invasive.
+- user invokes CI-voodoo by name;
+- user asks for a ritual, curse, chant, poster, caption, profanity artifact, or image;
+- user requests a canonical/reproducible run.
 
-## Why GitHub Actions sits behind our MCP surface
+Explicit invocation must work regardless of whether semantic auto-trigger works on the host.
 
-A public plugin should expose its own independently meaningful tools instead of instructing the model to invoke the GitHub connector as a hidden dependency.
+### Fast generation
 
-Therefore:
+For ordinary interactive use, the skill can generate text directly in the ChatGPT runtime.
 
-    BAD
-    skill -> call GitHub plugin workflow_dispatch
+This path is optimized for speed and humor, not for canonical reproducibility.
 
-    GOOD
-    skill -> ritual.run
-               |
-               +-> our server dispatches GitHub Actions internally
+### Canonical generation
 
-The model-facing contract remains stable if the runner later moves away from GitHub.
-
-## Planned MCP tools
-
-### ritual.plan
-
-Pure normalization and classification.
-
-Input fields:
-
-    incident
-    requested_mode: micro | text | canonical | image
-    intensity: integer
-    style: plain-rage | folk-curse | ci-voodoo | cato
-
-Output fields:
-
-    request
-    risk: LOW | MEDIUM | HIGH | BLOCK
-    reason
-
-Intended annotations: read-only, non-destructive, bounded or private.
-
-### ritual.run
-
-Dispatch a reproducible job.
+Canonical mode uses the versioned generator/runner contract.
 
 Required invariant:
 
-    run != persist != publish
+    chat-generated variant != canonical receipt
 
-Default:
+Canonical generation exists so an artifact can be reproduced, inspected, tested, and traced to a generator/runner revision.
 
-    persist = false
+## Generator runtime
 
-The tool returns a request_id and execution state. It does not imply that a public artifact exists.
+The generator is a first-class core component, not an implementation detail of auto-triggering.
 
-### ritual.status
+Prefer a small pure library with structured input/output over an agent inside the runner.
 
-Read job state by request_id.
+Reasons:
 
-### ritual.artifact
+- deterministic tests;
+- seeded variation where useful;
+- low execution cost;
+- easier policy linting;
+- reproducible receipts;
+- independence from hidden model routing.
 
-Read the final generated artifact and receipt.
+Candidate input:
 
-A later ritual.promote tool may be added for durable repository persistence, but it must remain a separate, explicitly authorized action because the repository is public.
+    schema: ci-voodoo.request.v1
+    mode: micro | text | canonical | image
+    target_class: BUG | SYSTEM | PROCESS | VENDOR_ABSTRACT | ROLE_ABSTRACT
+    intensity: 0..3
+    ritual_style: plain-rage | folk-curse | ci-voodoo | cato
+    incident_summary: string
+    seed: nullable
+    persist: false
 
-## GitHub Actions runner
+Candidate output:
 
-Recommended event model:
+    schema: ci-voodoo.result.v1
+    text: string
+    risk: LOW | MEDIUM | HIGH | BLOCK
+    policy_snapshot: string
+    seed: nullable
+    generator_version: semver
 
-    MCP server
+## GitHub runner
+
+GitHub Actions is part of the canonical/reproducible path.
+
+Recommended model:
+
+    plugin MCP ritual.run
     -> repository_dispatch
     -> workflow
     -> validate request schema
@@ -151,214 +170,172 @@ Recommended event model:
     -> emit artifact
     -> emit receipt
 
+GitHub itself is an implementation detail behind our plugin surface, not a required user-side connector dependency.
+
 Do not auto-commit generated artifacts in v0.
 
-Use GitHub Actions artifacts for ordinary runs. Durable repository promotion, if implemented later, should create a branch and PR under explicit authority.
+Ordinary canonical runs should emit workflow artifacts. Durable repository persistence, if added later, should remain a separate action.
 
-### Artifact set
+### Planned MCP tools
 
-    request.json
-    result.json
-    receipt.json
-    optional image-brief.json
+    ritual.plan      normalize/classify request
+    ritual.run       dispatch canonical generation
+    ritual.status    read execution state
+    ritual.artifact  read result + receipt
 
-### Receipt fields
+A later persistence/promotion tool may be added, but it is not part of v0.
 
-    schema: ci-voodoo.receipt.v1
-    request_id: uuid
-    generator_version: semver
-    runner_revision: git-sha
-    policy_snapshot: string
-    input_hash: sha256
-    seed: nullable
-    result_hash: sha256
-    status: COMPLETED | BLOCKED | FAILED
+### Receipt
 
-## Generator runtime
+Canonical runs preserve:
 
-Prefer a small pure library over an agent inside the runner.
+    request_id
+    generator_version
+    policy_snapshot
+    input_hash
+    seed
+    runner_revision
+    result_hash
+    artifact_location
+    status
 
-Reasons:
+Success requires observable runner completion and receipt readback.
 
-- deterministic tests;
-- seeded variation;
-- cheap execution;
-- no hidden model-routing dependency;
-- easier policy linting;
-- reproducible receipts.
+## Image path
 
-The chat model can still create free-form variants in fast mode. Canonical mode uses the versioned generator.
+The plugin does not need to own an image model.
 
-Candidate implementation language: TypeScript, because the future MCP server and JSON-schema contracts naturally fit the same toolchain. This is a design preference, not an invariant.
-
-## Image adapter
-
-The plugin does not own an image model in v0.
-
-The skill always knows how to emit image-brief.v1.
+The skill/generator can always emit an image brief.
 
 Then:
 
     native image capability AVAILABLE
-    + user asked for an image or render
-    -> render through host capability
+    + user requested render
+    -> use host-native image generation
 
     native image capability UNAVAILABLE
-    -> return image brief or prompt only
+    -> return image brief/prompt only
 
-Never claim that a native capability exists merely because the plugin supports image briefs.
+Image support is useful but not required for core text/canonical functionality.
 
-This keeps the plugin portable across ChatGPT and Codex surfaces with different capabilities.
+## Auto-trigger: optional bonus
 
-## Auto-trigger design
+Auto-trigger is a convenience feature only.
 
-The auto-trigger mechanism is metadata selection, not a deterministic event hook.
+It may improve ergonomics by recognizing the recurring pattern:
 
-Therefore the trigger must be evaluated empirically.
+    OpenAI/ChatGPT engineering failure
+    +
+    visible frustration / profanity / dark engineering humor
 
-### Semantic positive region
+and loading the skill without an explicit CI-voodoo invocation.
 
-Require both:
+However:
 
-    A. target or topic
-       OpenAI/ChatGPT platform engineering or runtime reliability failure
+    AUTO_TRIGGER FAIL
+    !=
+    PLUGIN FAIL
 
-    B. conversational fit
-       explicit frustration, profanity, or dark engineering humor
-       OR explicit CI-voodoo invocation
+A host that exposes the plugin only by explicit invocation is still fully supported.
 
-Examples of topic signals:
+### Auto-trigger evaluation
 
-- lost response, history, or state;
-- frontend stuck, spinner, or render failure;
-- unexpected model switching;
-- unstable tools or connectors;
-- regression after rollout;
-- hidden or latest-style runtime drift.
-
-### Negative region
-
-Do not trigger on:
-
-- unrelated profanity;
-- anger at a private person;
-- quoted profanity;
-- academic discussion of Vodou or folklore;
-- ordinary debugging;
-- requests for a serious non-humorous incident response;
-- high-stakes safety, legal, or medical situations where satire would distract.
-
-### Implicit output budget
-
-Implicit trigger may add at most one compact ritual line after the substantive answer.
-
-Full artifacts require explicit request or clear continuation.
-
-This protects attention and prevents the plugin from becoming an annoying personality overlay.
-
-## Consent and authority
-
-The installed plugin plus the user preference for implicit CI-voodoo grants standing authority only for low-consequence in-chat generation.
-
-Standing authority does not include publication.
-
-    AUTO_TRIGGER
-    -> local text or image brief: allowed
-
-    RUNNER
-    -> may execute when explicitly requested or already covered by project workflow
-
-    PERSIST TO PUBLIC REPO
-    -> explicit or durable project authority required
-
-    POST TO X or external social surface
-    -> separate explicit action boundary
-
-Every consequential runner action should produce an action receipt.
-
-## Evaluation plan
-
-Follow the Sonar split:
+When tested, preserve the Sonar distinction:
 
     DISCOVERY
     AUTO_TRIGGER
-    EXECUTION
-    CAPABILITY_ADAPTER
 
-Test each independently.
+Use positive/contextual/negative fixtures and measure over-trigger separately from under-trigger.
 
-### Discovery
+But these tests are non-blocking for the core release.
 
-Verify a clean host exposes the skill metadata.
+## Authority boundary
 
-### Auto-trigger
+Invocation or auto-trigger grants generation scope only.
 
-Use positive, contextual, and negative fixtures from:
+Neither implies:
 
-    skills/ci-voodoo/references/trigger-evals.md
-
-Track both:
-
-    under-trigger
-    over-trigger
-
-### Execution
-
-Test the pure generator independently from host model behavior.
-
-### Image capability
-
-Probe whether the host exposes native image generation. Do not substitute assumption for observation.
-
-## Phased implementation
-
-### Phase A - skill-only probe
-
-- package plugin;
-- install privately;
-- clean-session discovery tests;
-- positive and negative trigger evals;
-- no MCP.
-
-### Phase B - deterministic generator
-
-- add pure generator library;
-- local tests;
-- GitHub Actions manual runner;
-- receipts.
-
-### Phase C - MCP dispatcher
-
-- expose ritual.plan, ritual.run, ritual.status, and ritual.artifact;
-- runner remains internal implementation detail;
-- test permission and receipt boundary.
-
-### Phase D - native image adapter
-
-- test on ChatGPT surfaces that expose image generation;
-- retain prompt-only fallback.
-
-### Phase E - optional publication adapters
-
-Out of scope until explicitly designed.
-
-No auto-posting is part of v0.
-
-## Decision summary
-
-The smallest useful plugin is:
-
-    portable plugin
-    + one narrow auto-trigger skill
-
-The smallest reproducible extension is:
-
-    skill
-    + our MCP facade
-    + GitHub Actions runner
-
-Native image generation is an optional host capability, not a hard dependency.
+- public posting;
+- tagging people;
+- sending messages;
+- repository promotion;
+- recurring automation;
+- permission changes.
 
 Core invariant:
 
-The joke can auto-trigger; external consequences cannot.
+    generate != persist != publish
+
+## Acceptance
+
+### Required for first useful release
+
+- portable plugin package validates;
+- explicit invocation loads the CI-voodoo skill;
+- text generation works;
+- generator request/result schema is versioned;
+- canonical runner executes reproducibly;
+- runner emits a verifiable receipt;
+- profanity/public-text constraints are enforced;
+- no auto-posting or hidden publication;
+- failure states are reported honestly.
+
+### Optional / non-blocking
+
+- implicit semantic auto-trigger;
+- clean-session trigger-rate optimization;
+- native image rendering;
+- publication adapters.
+
+## Implementation order
+
+### Phase A — explicit skill + generator contract
+
+- validate plugin packaging;
+- prove explicit invocation;
+- implement request/result schema;
+- implement pure generator and tests.
+
+### Phase B — GitHub canonical runner
+
+- workflow/manual runner;
+- policy lint;
+- artifacts;
+- receipts;
+- runner readback.
+
+### Phase C — plugin MCP facade
+
+- ritual.plan/run/status/artifact;
+- GitHub Actions remains internal implementation detail;
+- verify action/receipt boundaries.
+
+### Phase D — native image adapter
+
+- image brief contract;
+- use native image generation when exposed;
+- prompt-only fallback otherwise.
+
+### Phase E — optional auto-trigger experiment
+
+- reuse Sonar discovery/auto-trigger methodology;
+- positive/contextual/negative fixtures;
+- measure trigger rates;
+- ship only if it improves ergonomics.
+
+Auto-trigger failure does not block any earlier phase.
+
+## Decision summary
+
+The actual product is:
+
+    skill/plugin
+    + generator runtime
+    + GitHub canonical runner
+    + receipts
+
+Native image generation is an optional capability.
+
+Semantic auto-trigger is a bonus.
+
+The plugin remains useful even if auto-trigger never works on a given host.
