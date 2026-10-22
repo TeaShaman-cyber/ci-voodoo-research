@@ -1,18 +1,23 @@
 ---
 name: ci-voodoo
-description: Use when the user explicitly invokes CI-voodoo or asks for a CI-voodoo ritual, curse, chant, poster, caption, profanity artifact, canonical run, or related image. It may also be used opportunistically when the user is clearly frustrated specifically by ChatGPT/OpenAI engineering failures and a brief satirical engineering ritual fits, but implicit auto-triggering is optional and must never be required for the skill to work.
+description: Use when the user invokes CI-voodoo or wants to turn a real OpenAI/ChatGPT engineering incident—lost messages, broken renderers, tool failures, flaky CI, permission regressions, model-routing glitches, or similar platform failures—into an automated profanity/satire artifact. Generate a targeted engineering curse or complaint, optionally produce a reproducible canonical receipt, and prepare publishable X copy or an image; publication remains a separate authorized action. Standalone ritual, curse, chant, poster, caption, and related artifact requests are also supported. Implicit auto-triggering is optional and must never be required for the skill to work.
 ---
 
 # CI Voodoo
 
-CI-voodoo is an explicitly invokable skill first. Implicit auto-triggering is an optional convenience.
+CI-voodoo automates profanity/satire responses to real OpenAI/ChatGPT engineering failures. Its primary use case is not decorative ritual generation; it turns an observed platform incident into a targeted engineering complaint or curse, with reproducibility and publication preparation as optional later stages.
+
+It remains explicitly invokable first. Implicit auto-triggering is an optional convenience.
 
 The core contract is:
 
-    explicit invocation
-    -> generate requested artifact
-    -> use canonical runner when reproducibility/receipt is requested
-    -> use native image generation when requested and available
+    OpenAI/ChatGPT engineering failure
+    -> structured incident/target
+    -> profanity/satire artifact
+    -> optional canonical receipt
+    -> optional publication-ready X artifact
+
+Publishing itself remains a separate authorized action. Native image generation is an optional host capability, not a core dependency.
 
 ## Explicit mode
 
@@ -20,10 +25,11 @@ Explicit invocation is the normative path and must always work on supported host
 
 Examples:
 
-- invoke CI-voodoo by name;
-- ask for a ritual, curse, spell, chant, poster, caption, or profanity artifact;
+- invoke CI-voodoo on a real OpenAI/ChatGPT incident such as a lost message, broken renderer, tool failure, flaky CI, permission regression, or routing glitch;
+- ask to turn that incident into a curse, complaint, caption, poster copy, or profanity artifact;
 - request a canonical/reproducible run;
-- request a CI-voodoo image.
+- request a publication-ready X artifact or CI-voodoo image;
+- ask for standalone ritual/curse/chant output when no incident context is needed.
 
 Produce the requested artifact at the requested depth.
 
