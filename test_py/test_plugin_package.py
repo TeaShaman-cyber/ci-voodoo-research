@@ -41,7 +41,7 @@ class PluginPackageTests(unittest.TestCase):
                 )
                 manifest = json.loads(zf.read('plugin.json'))
                 self.assertEqual(manifest['name'], 'ci-voodoo')
-                self.assertEqual(manifest['version'], '0.1.0')
+                self.assertEqual(manifest['version'], '0.1.2')
                 self.assertFalse(any(name.startswith(('.git/', 'src/', 'vendor/')) for name in names))
                 self.assertFalse(any('..' in pathlib.PurePosixPath(name).parts for name in names))
 

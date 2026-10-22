@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "ci-voodoo",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Turns real OpenAI/ChatGPT engineering incidents into targeted profanity/satire artifacts, with optional reproducible receipts and publication-ready X copy.",
   "repository": "https://github.com/TeaShaman-cyber/ci-voodoo-research",
   "keywords": ["ci", "reliability", "satire", "devops", "ritual"]
