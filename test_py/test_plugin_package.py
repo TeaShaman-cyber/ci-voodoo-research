@@ -41,7 +41,7 @@ class PluginPackageTests(unittest.TestCase):
                 )
                 manifest = json.loads(zf.read('plugin.json'))
                 self.assertEqual(manifest['name'], 'ci-voodoo')
-                self.assertEqual(manifest['version'], '0.1.2')
+                self.assertEqual(manifest['version'], '0.1.3')
                 self.assertFalse(any(name.startswith(('.git/', 'src/', 'vendor/')) for name in names))
                 self.assertFalse(any('..' in pathlib.PurePosixPath(name).parts for name in names))
 
@@ -80,12 +80,25 @@ class MissionStatementTests(unittest.TestCase):
         self.assertIn('-> optionally prepare publication-ready X copy', skill)
 
 class ExecutionPathTests(unittest.TestCase):
-    def test_real_incident_path_uses_existing_runner_routes(self):
+    def test_real_incident_path_uses_capability_gated_runner_routes(self):
         skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
         self.assertIn('native GitHub integration', skill)
-        self.assertIn('MarcoPolo', skill)
         self.assertIn('workflow_dispatch', skill)
+        self.assertIn('exe.dev', skill)
+        self.assertIn('list_vms', skill)
+        self.assertIn('Sprites', skill)
+        self.assertIn('MarcoPolo', skill)
+        self.assertIn('observed insufficiency', skill)
         self.assertIn('run the canonical generator/runner', skill)
+        self.assertNotIn('otherwise use MarcoPolo', skill)
+        self.assertNotIn('-> otherwise MarcoPolo', skill)
+
+    def test_tool_capability_is_not_run_success_or_authority(self):
+        skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('not workflow dispatch', skill)
+        self.assertIn('receipt.json', skill)
+        self.assertIn('generate != persist != publish', skill)
+        self.assertIn('REPROBE_REQUIRED', skill)
 
     def test_skill_does_not_require_mcp_facade(self):
         skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
