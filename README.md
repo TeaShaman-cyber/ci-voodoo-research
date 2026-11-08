@@ -26,7 +26,7 @@ The project is GPLv3. Vendored LibInsult is GPLv3+; vendored `six` is MIT. Exact
 ## Build the portable plugin
 
 ```sh
-python3 tools/build_plugin.py dist/ci-voodoo-plugin-0.1.0.zip
+python3 tools/build_plugin.py dist/ci-voodoo-plugin-0.1.3.zip
 ```
 
 The distributable is intentionally minimal: `plugin.json`, `skills/ci-voodoo/SKILL.md`, and the bundled public-text policy reference. Runtime source, vendored engine code, tests, and repository internals are not included in the skills-only package.
