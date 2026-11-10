@@ -2,6 +2,9 @@ name: CI Voodoo
 
 on:
   pull_request:
+  issue_comment:
+    types:
+      - created
   workflow_dispatch:
     inputs:
       mode:
@@ -52,6 +55,7 @@ permissions:
 
 jobs:
   verify:
+    if: github.event_name != 'issue_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -106,5 +110,42 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ci-voodoo-canonical
+          path: artifacts/canonical
+          if-no-files-found: error
+
+  canonical-comment:
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.comment.user.login == github.repository_owner &&
+      startsWith(github.event.comment.body, '/ci-voodoo')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify
+        run: ./tools/dev/check
+
+      - name: Generate canonical artifact from native GitHub request
+        env:
+          CI_VOODOO_COMMENT_BODY: ${{ github.event.comment.body }}
+          CI_VOODOO_OUT_DIR: artifacts/canonical
+          CI_VOODOO_RUNNER_REVISION: ${{ github.sha }}
+        run: node src/github_comment_cli.mjs
+
+      - name: Upload canonical receipt bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-voodoo-canonical-${{ github.event.comment.id }}
           path: artifacts/canonical
           if-no-files-found: error
