@@ -167,22 +167,23 @@ Output adds engine provenance:
 
 GitHub Actions is part of the canonical/reproducible path.
 
-Recommended model:
+Two bounded ingress paths feed the same runner:
 
-    plugin MCP ritual.run
-    -> repository_dispatch
-    -> workflow
-    -> validate request schema
-    -> run versioned generator
-    -> run policy lint
-    -> emit artifact
-    -> emit receipt
+    workflow_dispatch
+    -> existing manual/shell callers
+    -> canonical runner
 
-GitHub itself is an implementation detail behind our plugin surface, not a required user-side connector dependency.
+    native GitHub issue comment (#18)
+    -> owner-only /ci-voodoo command
+    -> strict ci-voodoo.request.v1 parser
+    -> canonical runner
+    -> artifact ci-voodoo-canonical-<comment_id>
 
-Do not auto-commit generated artifacts in v0.
+The native path exists because some ChatGPT GitHub integrations can create/read issue comments and inspect Actions artifacts but do not expose workflow_dispatch. The issue comment contains only the bounded request envelope and opaque incident hash; raw incident/chat text is forbidden. Generated text is not posted back to the issue.
 
-Ordinary canonical runs should emit workflow artifacts. Durable repository persistence, if added later, should remain a separate action.
+GitHub remains source/provenance authority and the hosted executor. No extra Fly/Sprites/MarcoPolo control plane is required for this path.
+
+Do not auto-commit generated artifacts. Ordinary canonical runs emit workflow artifacts; durable repository persistence remains a separate action.
 
 ### Planned MCP tools
 
