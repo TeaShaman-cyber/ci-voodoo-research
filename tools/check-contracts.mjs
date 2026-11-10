@@ -35,13 +35,17 @@ assert.equal(receipt.properties.status.const, 'COMPLETED');
 assert.equal(receipt.additionalProperties, false);
 
 assert.equal(plugin.name, 'ci-voodoo');
-assert.match(plugin.version, /^0\.1\.3$/);
+assert.match(plugin.version, /^0\.1\.4$/);
 
 const workflow = await readFile('.github/workflows/canonical-ritual.yml', 'utf8');
 const architecture = await readFile('docs/plugin-architecture.md', 'utf8');
 const skill = await readFile('skills/ci-voodoo/SKILL.md', 'utf8');
 assert.match(workflow, /pull_request:/);
 assert.match(workflow, /workflow_dispatch:/);
+assert.match(workflow, /issue_comment:/);
+assert.match(workflow, /github\.event\.comment\.user\.login == github\.repository_owner/);
+assert.match(workflow, /ci-voodoo-canonical-\$\{\{ github\.event\.comment\.id \}\}/);
+assert.match(workflow, /CI_VOODOO_COMMENT_BODY/);
 assert.doesNotMatch(workflow, /- image/);
 assert.match(workflow, /CI_VOODOO_INCIDENT_REF/);
 assert.doesNotMatch(workflow, /incident_summary/i);
@@ -49,6 +53,8 @@ assert.match(workflow, /contents: read/);
 assert.match(workflow, /python-version: \"3\.11\"/);
 assert.doesNotMatch(architecture, /incident_summary/i);
 assert.doesNotMatch(skill, /incident_summary/i);
+assert.match(skill, /native GitHub/i);
+assert.match(skill, /\/ci-voodoo/);
 
 assert.equal(await sha256File('vendor/libinsult/insult.py'), '1b9139a00f93dff1632752fe9c3b590dfded621d89371838d322b653afd8d596');
 assert.equal(await sha256File('vendor/six/six.py'), 'c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df');
