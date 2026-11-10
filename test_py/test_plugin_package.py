@@ -41,7 +41,7 @@ class PluginPackageTests(unittest.TestCase):
                 )
                 manifest = json.loads(zf.read('plugin.json'))
                 self.assertEqual(manifest['name'], 'ci-voodoo')
-                self.assertEqual(manifest['version'], '0.1.3')
+                self.assertEqual(manifest['version'], '0.1.4')
                 self.assertFalse(any(name.startswith(('.git/', 'src/', 'vendor/')) for name in names))
                 self.assertFalse(any('..' in pathlib.PurePosixPath(name).parts for name in names))
 
@@ -82,7 +82,9 @@ class MissionStatementTests(unittest.TestCase):
 class ExecutionPathTests(unittest.TestCase):
     def test_real_incident_path_uses_capability_gated_runner_routes(self):
         skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('native GitHub integration', skill)
+        self.assertIn('native GitHub issue-comment ingress (#18)', skill)
+        self.assertIn('/ci-voodoo', skill)
+        self.assertIn('ci-voodoo-canonical-<comment_id>', skill)
         self.assertIn('workflow_dispatch', skill)
         self.assertIn('exe.dev', skill)
         self.assertIn('list_vms', skill)
