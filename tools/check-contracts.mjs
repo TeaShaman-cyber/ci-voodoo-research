@@ -35,7 +35,7 @@ assert.equal(receipt.properties.status.const, 'COMPLETED');
 assert.equal(receipt.additionalProperties, false);
 
 assert.equal(plugin.name, 'ci-voodoo');
-assert.match(plugin.version, /^0\.1\.4$/);
+assert.match(plugin.version, /^0\.1\.5$/);
 
 const workflow = await readFile('.github/workflows/canonical-ritual.yml', 'utf8');
 const architecture = await readFile('docs/plugin-architecture.md', 'utf8');
@@ -54,6 +54,13 @@ assert.match(workflow, /python-version: \"3\.11\"/);
 assert.doesNotMatch(architecture, /incident_summary/i);
 assert.doesNotMatch(skill, /incident_summary/i);
 assert.match(skill, /native GitHub/i);
+assert.match(skill, /mcp__GitHub__add_comment_to_issue/);
+assert.match(skill, /generic \`mcp__GitHub__fetch\`/);
+assert.match(skill, /mcp__GitHub__fetch_workflow_run_artifacts/);
+assert.match(skill, /mcp__GitHub__download_workflow_artifact/);
+assert.match(skill, /MUST use the native issue-comment ingress and MUST NOT probe exe\.dev/);
+assert.match(skill, /MISSING[\s\S]*UNSUPPORTED[\s\S]*AUTH_DENIED[\s\S]*TRANSPORT_FAILED/);
+assert.match(skill, /ci-voodoo-canonical-<comment_id>/);
 assert.match(skill, /\/ci-voodoo/);
 
 assert.equal(await sha256File('vendor/libinsult/insult.py'), '1b9139a00f93dff1632752fe9c3b590dfded621d89371838d322b653afd8d596');

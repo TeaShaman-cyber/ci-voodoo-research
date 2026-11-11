@@ -111,19 +111,56 @@ Canonical requests use:
 
 Canonical success requires a runner receipt. A chat-generated line alone is not a canonical receipt.
 
+### Native ChatGPT GitHub capability map (normative)
+
+Route by **tool contract**, not by tool name. On the current ChatGPT GitHub connector, the following capabilities form a complete native canonical route:
+
+| Required capability | ChatGPT GitHub mapping |
+|---|---|
+| issue-comment dispatch | `mcp__GitHub__add_comment_to_issue` |
+| Actions workflow-run listing/readback | generic `mcp__GitHub__fetch` against approved GitHub Actions run/list URLs |
+| run-artifact listing | `mcp__GitHub__fetch_workflow_run_artifacts` |
+| artifact download | `mcp__GitHub__download_workflow_artifact` |
+
+The generic `fetch` action **counts as Actions readback when its live contract says workflow runs and their subresources are supported**. Do not infer capability from whether a tool name contains words such as `workflow`, `run`, or `actions`.
+
+If all four capabilities above are exposed and authorized, the native route is sufficient:
+
+    native GitHub comment #18
+    -> capture comment_id
+    -> GitHub fetch of issue_comment workflow runs
+    -> exact artifact ci-voodoo-canonical-<comment_id>
+    -> result.json + receipt.json
+
+When that condition holds, **MUST use the native issue-comment ingress and MUST NOT probe exe.dev, Fly Sprites, or MarcoPolo for dispatch**.
+
+Correlate by the exact artifact name containing the returned `comment_id`; do not select a run merely because it is the newest. If needed, enumerate plausible `issue_comment` runs with `fetch` and inspect their artifacts until the exact `ci-voodoo-canonical-<comment_id>` artifact is found.
+
+Fallback is allowed only after a required native capability is concretely observed as one of:
+
+    MISSING
+    UNSUPPORTED
+    AUTH_DENIED
+    TRANSPORT_FAILED
+
+A remembered limitation, a guessed connector gap, or failure to find a suitably named tool is not fallback evidence.
+
+Once any route has produced an observable dispatch for an incident, **STOP route selection**. Never dispatch the same incident through a second route unless the first write is proven not to have occurred. Reconcile ambiguous comment/dispatch state before any retry.
+
 Execution procedure:
 
 1. Classify the incident into the existing target taxonomy and choose intensity/style.
 2. Compute an opaque `incident_ref` as a SHA-256 reference without placing raw chat/incident text in public workflow inputs or logs.
-3. Inspect the live host tool surface. If native GitHub exposes issue-comment write plus Actions run/artifact readback, prefer the bounded native ingress:
+3. Apply the normative native capability map above. If all four required GitHub capabilities are present and authorized, use the bounded native ingress and do not probe shell fallbacks:
    - add exactly one comment to issue #18 with first line `/ci-voodoo` and the complete `ci-voodoo.request.v1` JSON on the following line;
    - include only the existing schema fields; `persist` must be `false`;
    - capture the returned GitHub comment ID;
    - do not retry an ambiguous comment write until the issue is read back;
-   - identify the resulting `issue_comment` Actions run and require artifact `ci-voodoo-canonical-<comment_id>`;
+   - enumerate/read `issue_comment` Actions runs using the generic GitHub `fetch` capability;
+   - correlate only by exact artifact `ci-voodoo-canonical-<comment_id>`, not by newest-run heuristics;
    - read back matching `result.json` and `receipt.json` before reporting canonical success.
-4. If native GitHub directly exposes authorized `workflow_dispatch`, the existing manual workflow remains a valid route.
-5. Otherwise choose the current governed shell: prefer exe.dev when its live `list_vms` establishes an authorized running target. Apply the installed `exe-dev-core-router` and current `TeaShaman-cyber/theseus-cloud-shell/RULES.md`; verify authenticated `gh` access to this repository. Run the existing workflow through `gh workflow run canonical-ritual.yml --repo TeaShaman-cyber/ci-voodoo-research --ref main` with only the bounded workflow inputs: `mode`, `target_class`, `intensity`, `ritual_style`, `incident_ref`, optional `seed`. `persist: false` is an authority invariant, not a workflow input.
+4. If native GitHub lacks one of the four required capabilities for a concrete observed reason (`MISSING`, `UNSUPPORTED`, `AUTH_DENIED`, or `TRANSPORT_FAILED`) but directly exposes authorized `workflow_dispatch`, the existing manual workflow remains a valid native route.
+5. Only after such observed native insufficiency choose the current governed shell: prefer exe.dev when its live `list_vms` establishes an authorized running target. Apply the installed `exe-dev-core-router` and current `TeaShaman-cyber/theseus-cloud-shell/RULES.md`; verify authenticated `gh` access to this repository. Run the existing workflow through `gh workflow run canonical-ritual.yml --repo TeaShaman-cyber/ci-voodoo-research --ref main` with only the bounded workflow inputs: `mode`, `target_class`, `intensity`, `ritual_style`, `incident_ref`, optional `seed`. `persist: false` is an authority invariant, not a workflow input.
 6. If exe.dev is unavailable or insufficient, consider Fly Sprites and then MarcoPolo only after observed insufficiency, with their current router/rules and independent GitHub authorization checks. Each fallback is a new capability probe, never inherited execution authority. Do not loop through failed routes.
 7. Observe the exact workflow run to terminal success. Read back the exact canonical artifact via native GitHub Actions tools or authenticated `gh run download`; require matching `result.json` and `receipt.json` evidence before reporting canonical success.
 8. If dispatch or comment creation is ambiguous, inspect current issue comments/runs/artifacts before any retry. A connector, host approval, or shell failure is not proof of generator failure. Report `BLOCKED`, `DEGRADED`, `REPROBE_REQUIRED` or `UNKNOWN` as appropriate.
@@ -151,8 +188,8 @@ The canonical executor is the existing GitHub Actions workflow. No plugin-local 
 
 Choose the thinnest **currently exposed, authorized, and verified** dispatch route:
 
-    native GitHub issue-comment ingress (#18) + Actions artifact readback
-    -> native GitHub workflow_dispatch (if actually exposed)
+    native GitHub issue-comment ingress (#18) + fetch-based Actions run readback + exact comment-correlated artifact
+    -> native GitHub workflow_dispatch (only if the four-capability issue-comment route is concretely insufficient)
     -> preferred governed exe.dev shell + authenticated gh workflow dispatch
     -> only after observed insufficiency: Fly Sprites
     -> only after observed insufficiency: MarcoPolo
