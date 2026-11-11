@@ -28,6 +28,10 @@ The workflow rejects non-owner callers, unknown fields, malformed JSON, oversize
 
 The existing manual `workflow_dispatch` path remains supported.
 
+## Updating the installed private ChatGPT plugin
+
+Repository releases and the installed ChatGPT private-plugin release are separate state domains. Use the guarded Plugin Creator workflow in [`docs/private-plugin-release.md`](docs/private-plugin-release.md) to update the existing plugin identity after a repository change is merged and verified.
+
 ## QA
 
 ```sh
