@@ -111,6 +111,135 @@ Canonical requests use:
 
 Canonical success requires a runner receipt. A chat-generated line alone is not a canonical receipt.
 
+The exact canonical request schema is bundled with the skill at:
+
+    references/ci-voodoo.request.v1.schema.json
+
+Before any GitHub comment write, construct the complete request first and preflight it against that bundled schema. The preflight is fail-closed:
+
+- allowed keys must be exactly the canonical request fields; no unknown fields;
+- `schema` must be exactly `ci-voodoo.request.v1`;
+- `mode` must be exactly `text`;
+- `target_class` must be one of `BUG`, `SYSTEM`, `PROCESS`, `VENDOR_ABSTRACT`, `ROLE_ABSTRACT`;
+- `intensity` must be an integer from 0 through 3;
+- `ritual_style` must be one of `plain-rage`, `folk-curse`, `ci-voodoo`, `cato`;
+- `incident_ref` must match `^sha256:[0-9a-fA-F]{16,64}---
+name: ci-voodoo
+description: Use when the user invokes CI-voodoo or wants to turn a real OpenAI/ChatGPT engineering incident—lost messages, broken renderers, tool failures, flaky CI, permission regressions, model-routing glitches, or similar platform failures—into an automated profanity/satire artifact. Generate a targeted engineering curse or complaint, optionally produce a reproducible canonical receipt, and prepare publishable X copy or an image; publication remains a separate authorized action. Standalone ritual, curse, chant, poster, caption, and related artifact requests are also supported. Implicit auto-triggering is optional and must never be required for the skill to work.
+---
+
+# CI Voodoo
+
+CI-voodoo automates profanity/satire responses to real OpenAI/ChatGPT engineering failures. Its primary use case is not decorative ritual generation; it turns an observed platform incident into a targeted engineering complaint or curse, with reproducibility and publication preparation as optional later stages.
+
+It remains explicitly invokable first. Implicit auto-triggering is an optional convenience.
+
+The core contract for a real OpenAI/ChatGPT incident is:
+
+    OpenAI/ChatGPT engineering failure
+    -> structured incident/target
+    -> run the canonical generator/runner
+    -> read back generated text + receipt
+    -> generate a companion CI-voodoo image when native image generation is available
+    -> optionally prepare publication-ready X copy
+
+Publishing itself remains a separate authorized action. The generator/runner and image generation are execution steps; they do not imply publication authority.
+
+## Explicit mode
+
+Explicit invocation is the normative path and must always work on supported hosts.
+
+Examples:
+
+- invoke CI-voodoo on a real OpenAI/ChatGPT incident such as a lost message, broken renderer, tool failure, flaky CI, permission regression, or routing glitch;
+- ask to turn that incident into a curse, complaint, caption, poster copy, or profanity artifact;
+- request a canonical/reproducible run;
+- request a publication-ready X artifact or CI-voodoo image;
+- ask for standalone ritual/curse/chant output when no incident context is needed.
+
+For a real OpenAI/ChatGPT incident, do not stop at an improvised chat line when the canonical runner is reachable. Run the generator first, use its generated text as the primary profanity/satire artifact, and generate a companion image when native image generation is available unless the user asks for text only.
+
+For standalone ritual/curse/chant requests with no incident workflow intent, a direct chat artifact is acceptable.
+
+## Optional implicit mode
+
+If the host selects this skill automatically from context, use it only when the user is clearly frustrated specifically by ChatGPT/OpenAI engineering/runtime failures and the tone already permits dark engineering humor.
+
+In implicit mode:
+
+1. do not interrupt the primary task;
+2. add at most one compact CI-voodoo garnish unless the user asks for more;
+3. target the bug, system, rollout, process, or abstract vendor behavior;
+4. never treat implicit loading as authority for external actions.
+
+If the host never auto-triggers this skill, nothing is broken.
+
+## Negative controls for implicit mode
+
+Do not surface CI-voodoo merely because:
+
+- the user swears about an unrelated person or situation;
+- profanity appears inside a quote or source;
+- the user is discussing profanity, religion, Vodou, or folklore academically;
+- the user is doing ordinary debugging with no frustration/satire signal;
+- the user explicitly asks for a serious, non-humorous response;
+- the situation is high-stakes and satire would interfere with the task.
+
+These controls are about the optional implicit path. They do not prevent explicit invocation.
+
+## Default target
+
+Prefer:
+
+    BUG
+    -> SYSTEM
+    -> PROCESS
+    -> VENDOR_ABSTRACT
+    -> ROLE_ABSTRACT
+
+Do not automatically escalate to a named-person target.
+
+For profanity and public-text constraints, follow:
+
+    references/x-compatible-profanity-generator.md
+
+## Output modes
+
+### micro
+
+One short ritual line.
+
+### text
+
+A short ritual, curse, caption, chant, bug exorcism, poster copy, or related text artifact.
+
+### canonical
+
+For real incident handling, canonical generation is the default when an authorized, verified execution route is actually available. Select by current tool capabilities, not a remembered plugin list or a hard-coded MarcoPolo fallback. GitHub repository/Actions read access is not workflow dispatch. Do not invent a new MCP facade or claim that the future service considered in issue #15 is deployed.
+
+Repository: `TeaShaman-cyber/ci-voodoo-research`
+Workflow: `.github/workflows/canonical-ritual.yml` (`CI Voodoo`)
+Native GitHub inbox: `TeaShaman-cyber/ci-voodoo-research#18`
+Triggers: owner-only `issue_comment` ingress or existing `workflow_dispatch`
+Artifacts: `ci-voodoo-canonical-<comment_id>` for native GitHub ingress, `ci-voodoo-canonical` for workflow dispatch
+
+Canonical requests use:
+
+    schema: ci-voodoo.request.v1
+    mode: text
+    target_class: SYSTEM
+    intensity: 0..3
+    ritual_style: ci-voodoo
+    incident_ref: sha256:<opaque digest>
+    seed: nullable
+    persist: false
+
+;
+- `seed` must be null or a non-empty string;
+- `persist` must be exactly `false`.
+
+If any field fails this preflight, do not write the comment. Correct the request locally and re-run the full preflight before any external write. Runner-side validation remains mandatory defense in depth; this preflight exists to avoid creating malformed public ingress comments in the first place.
+
 ### Native ChatGPT GitHub capability map (normative)
 
 Route by **tool contract**, not by tool name. On the current ChatGPT GitHub connector, the following capabilities form a complete native canonical route:
