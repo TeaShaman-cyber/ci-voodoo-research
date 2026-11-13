@@ -24,6 +24,11 @@ class PluginPackageTests(unittest.TestCase):
         self.assertIn('references/x-compatible-profanity-generator.md', skill)
         self.assertNotIn('specs/x-compatible-profanity-generator.md', skill)
 
+    def test_bundled_request_schema_matches_canonical_schema(self):
+        canonical = (ROOT / 'schemas' / 'ci-voodoo.request.v1.schema.json').read_bytes()
+        bundled = (ROOT / 'skills' / 'ci-voodoo' / 'references' / 'ci-voodoo.request.v1.schema.json').read_bytes()
+        self.assertEqual(bundled, canonical)
+
     def test_build_produces_minimal_self_contained_plugin_zip(self):
         with tempfile.TemporaryDirectory() as td:
             out = pathlib.Path(td) / 'ci-voodoo.zip'
@@ -36,12 +41,13 @@ class PluginPackageTests(unittest.TestCase):
                     [
                         'plugin.json',
                         'skills/ci-voodoo/SKILL.md',
+                        'skills/ci-voodoo/references/ci-voodoo.request.v1.schema.json',
                         'skills/ci-voodoo/references/x-compatible-profanity-generator.md',
                     ],
                 )
                 manifest = json.loads(zf.read('plugin.json'))
                 self.assertEqual(manifest['name'], 'ci-voodoo')
-                self.assertEqual(manifest['version'], '0.1.5')
+                self.assertEqual(manifest['version'], '0.1.6')
                 self.assertFalse(any(name.startswith(('.git/', 'src/', 'vendor/')) for name in names))
                 self.assertFalse(any('..' in pathlib.PurePosixPath(name).parts for name in names))
 
@@ -115,3 +121,13 @@ class ExecutionPathTests(unittest.TestCase):
         self.assertIn('generate a companion CI-voodoo image', skill)
         self.assertIn('native image generation', skill)
         self.assertIn('unless the user asks for text only', skill)
+
+
+class NativeRequestPreflightTests(unittest.TestCase):
+    def test_skill_requires_schema_preflight_before_native_github_write(self):
+        skill = (ROOT / 'skills' / 'ci-voodoo' / 'SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('references/ci-voodoo.request.v1.schema.json', skill)
+        self.assertIn('Before any GitHub comment write', skill)
+        self.assertIn('mode` must be exactly `text`', skill)
+        self.assertIn('incident_ref` must match `^sha256:[0-9a-fA-F]{16,64}$`', skill)
+        self.assertIn('do not write the comment', skill)

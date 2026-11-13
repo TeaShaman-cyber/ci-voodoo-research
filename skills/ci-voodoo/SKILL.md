@@ -111,6 +111,24 @@ Canonical requests use:
 
 Canonical success requires a runner receipt. A chat-generated line alone is not a canonical receipt.
 
+The exact canonical request schema is bundled with the skill at:
+
+    references/ci-voodoo.request.v1.schema.json
+
+Before any GitHub comment write, construct the complete request first and preflight it against that bundled schema. The preflight is fail-closed:
+
+- allowed keys must be exactly the canonical request fields; no unknown fields;
+- `schema` must be exactly `ci-voodoo.request.v1`;
+- `mode` must be exactly `text`;
+- `target_class` must be one of `BUG`, `SYSTEM`, `PROCESS`, `VENDOR_ABSTRACT`, `ROLE_ABSTRACT`;
+- `intensity` must be an integer from 0 through 3;
+- `ritual_style` must be one of `plain-rage`, `folk-curse`, `ci-voodoo`, `cato`;
+- `incident_ref` must match `^sha256:[0-9a-fA-F]{16,64}$`;
+- `seed` must be null or a non-empty string;
+- `persist` must be exactly `false`.
+
+If any field fails this preflight, do not write the comment. Correct the request locally and re-run the full preflight before any external write. Runner-side validation remains mandatory defense in depth; this preflight exists to avoid creating malformed public ingress comments in the first place.
+
 ### Native ChatGPT GitHub capability map (normative)
 
 Route by **tool contract**, not by tool name. On the current ChatGPT GitHub connector, the following capabilities form a complete native canonical route:

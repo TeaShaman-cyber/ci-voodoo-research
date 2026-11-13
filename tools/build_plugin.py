@@ -6,6 +6,7 @@ import zipfile
 FILES = (
     'plugin.json',
     'skills/ci-voodoo/SKILL.md',
+    'skills/ci-voodoo/references/ci-voodoo.request.v1.schema.json',
     'skills/ci-voodoo/references/x-compatible-profanity-generator.md',
 )
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
