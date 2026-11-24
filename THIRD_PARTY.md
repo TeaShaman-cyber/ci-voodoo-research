@@ -22,3 +22,14 @@ The PyPI 0.6.2 sdist and wheel contain byte-identical `insult.py`. The current G
 - License copy: `vendor/six/LICENSE`
 - PyPI wheel SHA-256: `4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274`
 - Vendored `six.py` SHA-256: `c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df`
+
+## marked 18.3.0
+
+- Project: marked
+- Release source: https://www.npmjs.com/package/marked/v/18.3.0
+- Repository: https://github.com/markedjs/marked
+- License: MIT
+- Runtime dependency: `marked` pinned exactly to `18.3.0` in `package.json` / `package-lock.json`
+- npm integrity: `sha512-ed8zmPXlBb3UfGXN5iHMQyMhFpdqLgoV5umUXx/Q1R+FW3q8VpqpyoKUwlENL9appo2UMvNLURDVaT3AMOryGA==`
+
+`marked.lexer()` is used only to normalize the narrow native GitHub Markdown envelope before the existing JSON/schema validation. It does not broaden publication or persistence authority.
