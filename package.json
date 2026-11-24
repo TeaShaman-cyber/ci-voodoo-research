@@ -6,5 +6,8 @@
   "scripts": {
     "test": "node --test",
     "check": "node --test && node tools/check-contracts.mjs"
+  },
+  "dependencies": {
+    "marked": "18.3.0"
   }
 }
